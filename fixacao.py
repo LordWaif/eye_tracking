@@ -6,6 +6,8 @@ import numpy as np
 from PIL import Image
 from datetime import datetime as dt
 
+from GazePointHeatMap.heatmap import segmentar
+
 PATH = "video_1_multiplicacao"
 df = pd.read_csv(PATH+'.csv',sep=';')
 df = df.drop(columns=['Unnamed: 0','V1','V2','V3'])
@@ -60,14 +62,23 @@ def gerarFixacao(df,tipo='tela',r=25,t=100,w = 1280,h = 720,titulo='grafico',ima
     reg_count = reg_count[reg_count['X']>0]
     reg_count = reg_count[reg_count['Y']>0]
     reg_count = reg_count[reg_count['Y']<h]
-    with open ('GazePointHeatMap/n_fixacoes.txt','w') as file:
-        file.write(str(len(reg_count)))
-        file.close()
+    from GazePointHeatMap import heatmap,variaveis as var
+    if(var.segmentar):
+        l = heatmap.segmentar(reg_count)
+        with open ('GazePointHeatMap/n_fixacoes.txt','w') as file:
+            for i in l :
+                file.write(str(len(i))+'\n')
+            file.close()
+    else:
+        l = [reg_count]
+        with open ('GazePointHeatMap/n_fixacoes.txt','w') as file:
+            file.write(str(len(reg_count)))
+            file.close()
     if(reg_count['MS'].empty):
         tam_maximo = 100
     else:
         tam_maximo = max(reg_count['MS'])
-
+    
     image = Image.open(image_bg)
     plot = px.Figure(
         data=[px.Scatter(
