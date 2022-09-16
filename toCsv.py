@@ -1,30 +1,21 @@
 import argparse,os
 import pandas as pd
 
-parser = argparse.ArgumentParser(descricao="Parametro para execução")
+parser = argparse.ArgumentParser(description="Parametro para execução")
 
 #obrigatorio
 parser.add_argument('input-path', type=str, help='caminho para o arquivo txt')
 
 #opcional
 parser.add_argument('-o','--output-name', default='output.csv', type=str, required=False, help='nome do arquivo de saida')
-parser.add_argument('-m','--many', type=bool, required=False, help='conversao para varios txt do caminho')
+parser.add_argument('-m','--many', type=bool, default=False,required=False, help='conversao para varios txt do caminho')
 
 args = vars(parser.parse_args())
 
 PATH_IN = args['input-path']
 OUTPUT_NAME = args['output_name']
 
-DEFAULT_SEP = ','
-DEFAULT_ENCODING = 'utf-8'
-DEFAULT_NAN = 'NaN'
-
-DEFAULT_DATE_SEP,DEFAULT_DATE_RPL = '_','/'
-DEFAULT_TIME_SEP,DEFAULT_TIME_RPL = '_',':'
-DEFAULT_MILL_SEP,DEFAULT_MILL_RPL = '.',':'
-
-DEFAULT_EXCLUDE_CONDITIONS = [(0,'==',0)]
-DEFAULT_HAS_DATE = True
+from config import *
 
 dds,dts,dms = DEFAULT_DATE_SEP,DEFAULT_TIME_SEP,DEFAULT_MILL_SEP
 
@@ -34,7 +25,8 @@ COUNT_FORMAT_DATE = (2,2,1)
 def exclude_conditions(elemento,args):
     ret = []
     for i in args:
-        ret.append(eval("elemento[i[0]] i[2] i[1]"))
+        if i[1] == '==':
+            ret.append(elemento[i[0]] == i[2])
     return all(ret)
 
 def txt2csv(path_in=PATH_IN,
@@ -87,4 +79,9 @@ def txt2csv(path_in=PATH_IN,
     df.columns = ['CLASSE','INDICE','DATE_TIME','X_TELA','Y_TELA','X_MOUSE','Y_MOUSE','V1','V2','V3','V4','V5','V6','V7','NOME']
     df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y/%m/%d %H:%M:%S:%f")
     df.to_csv(os.path.splitext(path_in)[0]+OUTPUT_NAME,sep=';',encoding=encoding)
-    
+
+
+if not(args['many']):
+    txt2csv()
+
+#COMMAND python3 toCsv.py video_1_multiplicacao.txt -o saida.csv
