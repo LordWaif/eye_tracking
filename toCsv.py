@@ -26,10 +26,16 @@ def exclude_conditions(elemento,args):
     ret = []
     for i in args:
         if i[1] == '==':
-            ret.append(elemento[i[0]] == i[2])
+            try:
+                ret.append(int(elemento[i[0]]) == i[2])
+            except Exception as e:
+                if(str(e).find('invalid literal for int()') == 0):
+                    ret.append(True)
+                
     return all(ret)
 
 def txt2csv(path_in=PATH_IN,
+            path_out=OUTPUT_NAME,
             sep=DEFAULT_SEP,
             encoding=DEFAULT_ENCODING,
             date_sep=DEFAULT_DATE_SEP,
@@ -45,11 +51,10 @@ def txt2csv(path_in=PATH_IN,
     cfd = count_format_date
 
     arquivo = []
-    with open(PATH_IN,'r',encoding=encoding) as file:
+    with open(path_in,'r',encoding=encoding) as file:
         arquivo = file.readlines()
         file.close()
     arquivo = [arquivo[i].split(sep) for i in range(len(arquivo))]
-
     excluidos = []
     for i in range(len(arquivo)):
         if(exclude_conditions(arquivo[i],_exclude_conditions)):
@@ -76,12 +81,18 @@ def txt2csv(path_in=PATH_IN,
         i+=1
 
     df = pd.DataFrame(arquivo)
-    df.columns = ['CLASSE','INDICE','DATE_TIME','X_TELA','Y_TELA','X_MOUSE','Y_MOUSE','V1','V2','V3','V4','V5','V6','V7','NOME']
+    df.columns = COLUMNS_NAMES_DATAFRAME
     df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y/%m/%d %H:%M:%S:%f")
-    df.to_csv(os.path.splitext(path_in)[0]+OUTPUT_NAME,sep=';',encoding=encoding)
-
+    df.to_csv(path_out,sep=';',encoding=encoding)
 
 if not(args['many']):
     txt2csv()
+else:
+    c = 0
+    for i in os.listdir(PATH_IN):
+        c += 1
+        p,ex = os.path.splitext(OUTPUT_NAME)
+        txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,str(c),ex]))
 
 #COMMAND python3 toCsv.py video_1_multiplicacao.txt -o saida.csv
+#COMMAND python3 toCsv.py ./in -o ./saida.csv -m true
