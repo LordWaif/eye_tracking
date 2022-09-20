@@ -94,5 +94,6 @@ else:
         p,ex = os.path.splitext(OUTPUT_NAME)
         txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,str(c),ex]))
 
+
 #COMMAND python3 toCsv.py video_1_multiplicacao.txt -o saida.csv
 #COMMAND python3 toCsv.py ./in -o ./saida.csv -m true
