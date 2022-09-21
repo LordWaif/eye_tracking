@@ -47,7 +47,8 @@ def txt2csv(path_in=PATH_IN,
             nan=DEFAULT_NAN,
             has_date=DEFAULT_HAS_DATE,
             count_format_date=COUNT_FORMAT_DATE,
-            _exclude_conditions=DEFAULT_EXCLUDE_CONDITIONS):
+            _exclude_conditions=DEFAULT_EXCLUDE_CONDITIONS,
+            sep_dataframe=DEFAULT_SEP_DF):
     cfd = count_format_date
 
     arquivo = []
@@ -79,11 +80,10 @@ def txt2csv(path_in=PATH_IN,
     while i<len(excluidos):
         arquivo.remove(excluidos[i])    
         i+=1
-
     df = pd.DataFrame(arquivo)
     df.columns = COLUMNS_NAMES_DATAFRAME
-    df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y/%m/%d %H:%M:%S:%f")
-    df.to_csv(path_out,sep=';',encoding=encoding)
+    df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y"+date_rpl+"%m"+date_rpl+"%d %H"+time_rpl+"%M"+time_rpl+"%S"+mill_rpl+"%f")
+    df.to_csv(path_out,sep=sep_dataframe,encoding=encoding,index=False)
 
 if not(args['many']):
     txt2csv()
@@ -96,4 +96,4 @@ else:
 
 
 #COMMAND python3 toCsv.py video_1_multiplicacao.txt -o saida.csv
-#COMMAND python3 toCsv.py ./in -o ./saida.csv -m true
+#COMMAND python3 toCsv.py ./in -o ./out/saida.csv -m true
