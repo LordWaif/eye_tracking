@@ -88,11 +88,14 @@ class Fixacao():
         t_fim = np.array([dt.strptime(i,r'%Y-%m-%d %H:%M:%S.%f') for i in t_fim])
         duracao = t_fim - t_inicio
         duracao = np.array([i.total_seconds()*1000 for i in duracao])
-        return duracao
+
+        tempo_inicio_geral = dt.strptime(grp[COLUMN_DATE_TIME].min().iloc[0],r'%Y-%m-%d %H:%M:%S.%f')
+        tempo_final_geral = dt.strptime(grp[COLUMN_DATE_TIME].max().iloc[-1],r'%Y-%m-%d %H:%M:%S.%f')
+        return [duracao,tempo_inicio_geral,tempo_final_geral]
     
     def regionProcess(self,columns_sufix=COLUMNS_TO_BE_PROCESS['N']):
         grp = self.group()
-        duracoes = self.timeProcess(grp)
+        duracoes = self.timeProcess(grp)[0]
 
         x_medio = grp['X_REGIAO_MEDIO_'+columns_sufix].mean()
         y_medio = grp['Y_REGIAO_MEDIO_'+columns_sufix].mean()
@@ -127,3 +130,5 @@ else:
 #COMMAND python3 fixacao.py ./out -o ./out_regions/regioes.csv -m true
 
 
+
+# %%
