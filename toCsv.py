@@ -96,4 +96,5 @@ else:
 
 
 #COMMAND python3 toCsv.py video_1_multiplicacao.txt -o saida.csv
+            # python3 toCsv.py ./input -o ./output/saida.csv -m true
 #COMMAND python3 toCsv.py ./in -o ./out/saida.csv -m true

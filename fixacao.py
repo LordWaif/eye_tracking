@@ -127,8 +127,5 @@ else:
         #txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,str(c),ex]))
 
 #COMMAND python3 fixacao.py ./out/estruturado1.csv -o ./out_regions/regioes.csv
+            # python3 fixacao.py ./output -o ./output_regions/regioes.csv -m true
 #COMMAND python3 fixacao.py ./out -o ./out_regions/regioes.csv -m true
-
-
-
-# %%
