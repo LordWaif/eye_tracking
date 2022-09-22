@@ -15,6 +15,8 @@ args = vars(parser.parse_args())
 PATH_IN = args['input-path']
 OUTPUT_NAME = args['output_name']
 
+#print(PATH_IN)
+
 from config import *
 
 dds,dts,dms = DEFAULT_DATE_SEP,DEFAULT_TIME_SEP,DEFAULT_MILL_SEP
@@ -80,10 +82,11 @@ def txt2csv(path_in=PATH_IN,
     while i<len(excluidos):
         arquivo.remove(excluidos[i])    
         i+=1
-    df = pd.DataFrame(arquivo)
-    df.columns = COLUMNS_NAMES_DATAFRAME
-    df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y"+date_rpl+"%m"+date_rpl+"%d %H"+time_rpl+"%M"+time_rpl+"%S"+mill_rpl+"%f")
-    df.to_csv(path_out,sep=sep_dataframe,encoding=encoding,index=False)
+    if len(arquivo) != 0:
+        df = pd.DataFrame(arquivo)
+        df.columns = COLUMNS_NAMES_DATAFRAME
+        df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y"+date_rpl+"%m"+date_rpl+"%d %H"+time_rpl+"%M"+time_rpl+"%S"+mill_rpl+"%f")
+        df.to_csv(path_out,sep=sep_dataframe,encoding=encoding,index=False)
 
 if not(args['many']):
     txt2csv()
@@ -95,6 +98,5 @@ else:
         txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,str(c),ex]))
 
 
-#COMMAND python3 toCsv.py video_1_multiplicacao.txt -o saida.csv
-            # python3 toCsv.py ./input -o ./output/saida.csv -m true
+#COMMAND python3 toCsv.py ./input -o ./output/saida.csv -m true
 #COMMAND python3 toCsv.py ./in -o ./out/saida.csv -m true

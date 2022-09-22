@@ -28,14 +28,14 @@ class Fixacao():
         self.dataframe = dataframe
         self.regions = None
     
-    def rangeCalc(self,x,y,r):
+    def rangeCalc(self,x,y,range_x=RANGE_X,range_y=RANGE_Y):
         regiao = []
         count_regiao = 1
-        x_anterior = x[0]-r
-        x_fim = x[0] + r
+        x_anterior = x[0]-range_x
+        x_fim = x[0] + range_x
 
-        y_anterior = y[0]-r
-        y_fim = y[0] + r
+        y_anterior = y[0]-range_y
+        y_fim = y[0] + range_y
 
         regiao = []
         count_regiao = 1
@@ -45,8 +45,8 @@ class Fixacao():
             x_regiao = (i >= x_anterior and i<x_fim)
             y_regiao = (j >= y_anterior and j<y_fim)
             if not(x_regiao and y_regiao):
-                x_anterior,x_fim = i-r,i+r
-                y_anterior,y_fim = j-r,j+r
+                x_anterior,x_fim = i-range_x,i+range_x
+                y_anterior,y_fim = j-range_y,j+range_y
                 count_regiao+=1
                 lista_x_medio.append((x_anterior+x_fim)/2)
                 lista_y_medio.append((y_anterior+y_fim)/2)
@@ -60,7 +60,7 @@ class Fixacao():
         axisX = self.dataframe[columns_tobe_process['X']].values
         axisY = self.dataframe[columns_tobe_process['Y']].values
         ## Calculando regiões
-        self.dataframe['REGIAO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['X_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['Y_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']] = self.rangeCalc(axisX,axisY,100)
+        self.dataframe['REGIAO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['X_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['Y_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']] = self.rangeCalc(axisX,axisY)
         #self.dataframe.to_csv(self.PATH,sep=DEFAULT_SEP_DF,encoding=DEFAULT_ENCODING,index=False)
         ##Processando Regiões
         return self.regionProcess()
@@ -78,7 +78,7 @@ class Fixacao():
 
 
     def group(self,colum_tobe_grouped='REGIAO_'+COLUMNS_TO_BE_PROCESS['N']):
-        return self.dataframe.groupby('REGIAO_'+COLUMNS_TO_BE_PROCESS['N'])
+        return self.dataframe.groupby(colum_tobe_grouped)
 
     def timeProcess(self,grp):
         t_inicio = grp[COLUMN_DATE_TIME].min().tolist()
@@ -126,6 +126,5 @@ else:
         f.saveRegions(regioes,path_out=path_design([p,str(c),ex]))
         #txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,str(c),ex]))
 
-#COMMAND python3 fixacao.py ./out/estruturado1.csv -o ./out_regions/regioes.csv
-            # python3 fixacao.py ./output -o ./output_regions/regioes.csv -m true
+#COMMAND python3 fixacao.py ./output -o ./output_regions/regioes.csv -m true
 #COMMAND python3 fixacao.py ./out -o ./out_regions/regioes.csv -m true
