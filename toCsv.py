@@ -95,7 +95,7 @@ else:
     for i in os.listdir(PATH_IN):
         c += 1
         p,ex = os.path.splitext(OUTPUT_NAME)
-        txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,str(c),ex]))
+        txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,ex]))
 
 
 #COMMAND python3 toCsv.py ./input -o ./output/saida.csv -m true

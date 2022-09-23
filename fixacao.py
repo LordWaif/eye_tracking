@@ -123,7 +123,7 @@ else:
         p,ex = os.path.splitext(OUTPUT_NAME)
         f = Fixacao(os.path.join(PATH_IN,i))
         regioes = f.getRegions()
-        f.saveRegions(regioes,path_out=path_design([p,str(c),ex]))
+        f.saveRegions(regioes,path_out=path_design([p,ex]))
         #txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,str(c),ex]))
 
 #COMMAND python3 fixacao.py ./output -o ./output_regions/regioes.csv -m true

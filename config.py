@@ -1,4 +1,5 @@
 ROOT_DATA = '/home/lordwaif/documents/dados_eyeTree'
+ROOT_APPS = '/home/lordwaif/documents/eye_tracking'
 
 DEFAULT_SEP = ','
 DEFAULT_SEP_DF = DEFAULT_SEP
@@ -28,7 +29,7 @@ RANGE_Y = int(SCREEN_H*0.06)
 '''
 
 #(saida,str(1),csv) -> 'saida'+'1'+'csv' -> saida1.csv
-path_design = lambda path_design: path_design[0]+path_design[1]+path_design[2]
+path_design = lambda path_design: path_design[0]+path_design[2]
 
 COLUMN_DATE_TIME = 'DATE_TIME'
 COLUMNS_NAMES_DATAFRAME = ['CLASSE','INDICE',COLUMN_DATE_TIME,'X_TELA','Y_TELA','X_MOUSE','Y_MOUSE','V1','V2','V3','V4','V5','V6','V7','NOME']
