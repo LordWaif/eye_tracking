@@ -27,14 +27,23 @@ COUNT_FORMAT_DATE = (2,2,1)
 def exclude_conditions(elemento,args):
     ret = []
     for i in args:
+        # #####
+        if elemento[0][0] == '#':
+            ret.append(True)
         if i[1] == '==':
             try:
                 ret.append(int(elemento[i[0]]) == i[2])
-            except Exception as e:
-                if(str(e).find('invalid literal for int()') == 0):
-                    ret.append(True)
-                
-    return all(ret)
+            except:
+                pass
+            try:
+                ret.append(elemento[i[0]] == i[2])
+            except:
+                pass  
+            try:
+                ret.append(elemento[3][0] == '-2147483648')
+            except:
+                pass       
+    return any(ret)
 
 def txt2csv(path_in=PATH_IN,
             path_out=OUTPUT_NAME,
@@ -82,6 +91,9 @@ def txt2csv(path_in=PATH_IN,
     while i<len(excluidos):
         arquivo.remove(excluidos[i])    
         i+=1
+    # A ultima linha estava vindo vazia, dá pra usar isso ou dropna()
+    if(str(arquivo[-1]) == "['']"):
+        arquivo = arquivo[:-1]
     if len(arquivo) != 0:
         df = pd.DataFrame(arquivo)
         df.columns = COLUMNS_NAMES_DATAFRAME

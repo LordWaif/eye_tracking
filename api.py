@@ -29,7 +29,7 @@ def execFixacao():
 def main():
     os.chdir(ROOT_APPS)
     #createTree()
-    #execToCsv()
-    execFixacao()
+    execToCsv()
+    #execFixacao()
 
 main()

@@ -28,7 +28,7 @@ class Fixacao():
         self.dataframe = dataframe
         self.regions = None
     
-    def rangeCalc(self,x,y,range_x=RANGE_X,range_y=RANGE_Y):
+    def rangeCalc(self,look,ind,x,y,range_x=RANGE_X,range_y=RANGE_Y):
         regiao = []
         count_regiao = 1
         x_anterior = x[0]-range_x
@@ -41,10 +41,25 @@ class Fixacao():
         count_regiao = 1
         lista_x_medio,lista_y_medio = [],[]
         coordenadas_tela = np.transpose(np.asarray([x,y]))
+        dead_area = False
+        counter_look = 0
         for i,j in coordenadas_tela:
+            if(look[counter_look] == 1):
+                dead_area = False
+            if dead_area:
+                x_anterior,x_fim = i-range_x,i+range_x
+                y_anterior,y_fim = j-range_y,j+range_y
+
+                lista_x_medio.append((x_anterior+x_fim)/2)
+                lista_y_medio.append((y_anterior+y_fim)/2)
+                regiao.append(-1)
+                #print([ind[counter_look],regiao[-1],lista_x_medio[-1],lista_y_medio[-1]])
+                counter_look += 1
+                continue
             x_regiao = (i >= x_anterior and i<x_fim)
             y_regiao = (j >= y_anterior and j<y_fim)
-            if not(x_regiao and y_regiao):
+            if not(x_regiao and y_regiao) or (look[counter_look] == 0):
+                dead_area = True
                 x_anterior,x_fim = i-range_x,i+range_x
                 y_anterior,y_fim = j-range_y,j+range_y
                 count_regiao+=1
@@ -53,14 +68,21 @@ class Fixacao():
             else:
                 lista_x_medio.append((x_anterior+x_fim)/2)
                 lista_y_medio.append((y_anterior+y_fim)/2)
-            regiao.append(count_regiao)
+            if look[counter_look] == 0:
+                regiao.append(-1)
+            else:
+                regiao.append(count_regiao)
+            #print([ind[counter_look],regiao[-1],lista_x_medio[-1],lista_y_medio[-1]])
+            counter_look += 1
+        #print(len(regiao),len(lista_x_medio),len(lista_y_medio))
         return [regiao,lista_x_medio,lista_y_medio]
 
     def regionFinder(self,columns_tobe_process=COLUMNS_TO_BE_PROCESS):
         axisX = self.dataframe[columns_tobe_process['X']].values
         axisY = self.dataframe[columns_tobe_process['Y']].values
+        look = self.dataframe[columns_tobe_process['C']].values
         ## Calculando regiões
-        self.dataframe['REGIAO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['X_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['Y_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']] = self.rangeCalc(axisX,axisY)
+        self.dataframe['REGIAO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['X_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['Y_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']] = self.rangeCalc(look,self.dataframe['INDICE'].values,axisX,axisY)
         #self.dataframe.to_csv(self.PATH,sep=DEFAULT_SEP_DF,encoding=DEFAULT_ENCODING,index=False)
         ##Processando Regiões
         return self.regionProcess()
@@ -76,14 +98,12 @@ class Fixacao():
                     encoding=DEFAULT_ENCODING):
         dataframe.to_csv(path_out,sep=sep_dataframe,encoding=encoding,index=False)
 
-
     def group(self,colum_tobe_grouped='REGIAO_'+COLUMNS_TO_BE_PROCESS['N']):
-        return self.dataframe.groupby(colum_tobe_grouped)
+        return self.dataframe[self.dataframe[colum_tobe_grouped] != -1].groupby(colum_tobe_grouped)
 
     def timeProcess(self,grp):
         t_inicio = grp[COLUMN_DATE_TIME].min().tolist()
         t_fim = grp[COLUMN_DATE_TIME].max().tolist()
-
         t_inicio = np.array([dt.strptime(i,r'%Y-%m-%d %H:%M:%S.%f') for i in t_inicio])
         t_fim = np.array([dt.strptime(i,r'%Y-%m-%d %H:%M:%S.%f') for i in t_fim])
         duracao = t_fim - t_inicio
