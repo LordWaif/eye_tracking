@@ -1,12 +1,13 @@
 ROOT_DATA = '/home/lordwaif/documents/dados_eyeTree'
 ROOT_APPS = '/home/lordwaif/documents/eye_tracking'
+IMAGE_ROOT = '/home/lordwaif/documents/dados_eyeTree/bg.jpeg'
 
 DEFAULT_SEP = ','
 DEFAULT_SEP_DF = DEFAULT_SEP
 DEFAULT_ENCODING = 'utf-8'
 DEFAULT_NAN = 'NaN'
 
-DEFAULT_PATH_GRAPHS_FIX = './output_graficoF'
+DEFAULT_PATH_GRAPHS_FIX = '/home/lordwaif/documents/dados_eyeTree/imgs/test.html'
 
 DEFAULT_DATE_SEP,DEFAULT_DATE_RPL = '_','/'
 DEFAULT_TIME_SEP,DEFAULT_TIME_RPL = '_',':'

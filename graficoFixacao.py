@@ -1,31 +1,33 @@
 import plotly.graph_objects as px 
 import os
 from config import *
-'''
-layout=px.Layout(
-                        images=[
-                            dict(
-                            visible=True,
-                            source=image,
-                            xref="x",
-                            yref="y",
-                            x=0,
-                            y=3,
-                            sizex=1280,
-                            sizey=720,
-                            sizing="stretch",
-                            opacity=0.5,
-                            layer="below")
-                        ]
-                    )
-'''
+from PIL import Image
+import argparse,os
+import pandas as pd
+
+parser = argparse.ArgumentParser(description="Parametro para execução")
+
+#obrigatorio
+parser.add_argument('input-path', type=str, help='caminho para o arquivo csv')
+
+#opcional
+parser.add_argument('-o','--output-name', default='region_output.csv', type=str, required=False, help='nome do arquivo de saida')
+parser.add_argument('-bg','--bg-image',default=IMAGE_ROOT,type=str,required=False,help='caminho de imagem a ser usada de fundo')
+
+args = vars(parser.parse_args())
+
+PATH_IN = args['input-path']
+OUTPUT_NAME = args['output_name']
+BG_IMG = args['bg_image']
 
 
 class GraficoFixacao():
-    def __init__(self,region_counter) -> None:
-        self.region_counter = region_counter
+    def __init__(self,path_region_counter,image_bg=IMAGE_ROOT,sep=DEFAULT_SEP_DF) -> None:
+        self.image_bg = image_bg
+        self.region_counter = pd.read_csv(path_region_counter,sep=sep)
 
-    def makeGraph(self,path=DEFAULT_PATH_GRAPHS_FIX):
+    def makeGraph(self,path=OUTPUT_NAME):
+        image = Image.open(self.image_bg)
         tam_maximo = max(self.region_counter['MS'])
         plot = px.Figure(
                     data=[px.Scatter(
@@ -39,6 +41,22 @@ class GraficoFixacao():
                             sizemin=4,
                         ),
                     )],
+                    layout=px.Layout(
+                                    images=[
+                                        dict(
+                                        visible=True,
+                                        source=image,
+                                        xref="x",
+                                        yref="y",
+                                        x=0,
+                                        y=3,
+                                        sizex=1280,
+                                        sizey=720,
+                                        sizing="stretch",
+                                        opacity=0.5,
+                                        layer="below")
+                                    ]
+                                )
                 )
         plot.update_xaxes(showgrid=False,range=[0,1280])
         plot.update_yaxes(showgrid=False,range=[720,0])
@@ -48,8 +66,6 @@ class GraficoFixacao():
         plot.update_layout(template="plotly_white")
         #plot.update_yaxes(autorange="reversed")
         #os.path.join(os.path.dirname(PATH),os.path.splitext(PATH)[0].split('/')[-1]+titulo+'_'+df['NOME'][0]+'_'+str(i)+'_.html')
-        plot.write_html(os.path.join(path,'teste.html'))
+        plot.write_html(path)
 
-if __name__ == '__main__':
-    import pandas as pd
-    GraficoFixacao(pd.read_csv('./output_regions/regioes1.csv',sep=',')).makeGraph()
+GraficoFixacao(PATH_IN,image_bg=BG_IMG).makeGraph(path=OUTPUT_NAME)

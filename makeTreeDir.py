@@ -1,9 +1,11 @@
 import os
 
-from config import ROOT_DATA
-DEFAULT_DIRECTORIES = ['input_txt','csv_structured','csv_fixacion']
+from config import ROOT_DATA,ROOT_APPS
+#Config
+DEFAULT_DIRECTORIES = ['input_txt','csv_structured','csv_fixacion','fixacion_graph']
 OUTPUT_TXTTOCSV = 'csv_structured'
 OUTPUT_CSVTOFCSV = 'csv_fixacion'
+OUTPUT_FCSVTOFGRAPH = 'fixacion_graph'
 
 
 common_prefix = 'saeb'
@@ -30,10 +32,8 @@ def cdCreate(path):
     os.chdir(path)
 
 def createTree():
-    if not(os.path.exists(ROOT_DATA)):
-        os.makedirs(ROOT_DATA)
-
-    os.chdir(ROOT_DATA)
+    os.chdir(ROOT_APPS)
+    cdCreate(ROOT_DATA)
     cdCreate(main_dir)
 
     def recursive_createTree(dirs):

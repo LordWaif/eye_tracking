@@ -19,6 +19,13 @@ args = vars(parser.parse_args())
 PATH_IN = args['input-path']
 OUTPUT_NAME = args['output_name']
 
+def setAxis(x,y,range_x,range_y):
+    x_anterior = x-range_x
+    x_fim = x + range_x
+    y_anterior = y-range_y
+    y_fim = y + range_y
+    return [x_anterior,x_fim,y_anterior,y_fim]
+
 class Fixacao():
     def __init__(self,PATH) -> None:
         self.PATH = PATH
@@ -31,15 +38,10 @@ class Fixacao():
     def rangeCalc(self,look,ind,x,y,range_x=RANGE_X,range_y=RANGE_Y):
         regiao = []
         count_regiao = 1
-        x_anterior = x[0]-range_x
-        x_fim = x[0] + range_x
 
-        y_anterior = y[0]-range_y
-        y_fim = y[0] + range_y
-
-        regiao = []
-        count_regiao = 1
+        x_anterior,x_fim,y_anterior,y_fim = setAxis(x[0],y[0],range_x,range_y)
         lista_x_medio,lista_y_medio = [],[]
+
         coordenadas_tela = np.transpose(np.asarray([x,y]))
         dead_area = False
         counter_look = 0
@@ -47,8 +49,7 @@ class Fixacao():
             if(look[counter_look] == 1):
                 dead_area = False
             if dead_area:
-                x_anterior,x_fim = i-range_x,i+range_x
-                y_anterior,y_fim = j-range_y,j+range_y
+                x_anterior,x_fim,y_anterior,y_fim = setAxis(i,j,range_x,range_y)
 
                 lista_x_medio.append((x_anterior+x_fim)/2)
                 lista_y_medio.append((y_anterior+y_fim)/2)
@@ -60,14 +61,10 @@ class Fixacao():
             y_regiao = (j >= y_anterior and j<y_fim)
             if not(x_regiao and y_regiao) or (look[counter_look] == 0):
                 dead_area = True
-                x_anterior,x_fim = i-range_x,i+range_x
-                y_anterior,y_fim = j-range_y,j+range_y
+                x_anterior,x_fim,y_anterior,y_fim = setAxis(i,j,range_x,range_y)
                 count_regiao+=1
-                lista_x_medio.append((x_anterior+x_fim)/2)
-                lista_y_medio.append((y_anterior+y_fim)/2)
-            else:
-                lista_x_medio.append((x_anterior+x_fim)/2)
-                lista_y_medio.append((y_anterior+y_fim)/2)
+            lista_x_medio.append((x_anterior+x_fim)/2)
+            lista_y_medio.append((y_anterior+y_fim)/2)
             if look[counter_look] == 0:
                 regiao.append(-1)
             else:
