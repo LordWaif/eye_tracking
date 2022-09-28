@@ -1,4 +1,4 @@
-import os
+import os,glob
 
 from config import ROOT_DATA,ROOT_APPS
 #Config
@@ -13,6 +13,11 @@ comp = common_prefix
 
 LAYER_2 = [comp+'_2',comp+'_4']
 LAYER_1 = os.listdir('/home/lordwaif/documents/dados_eye/')
+
+BG_MAP = {
+    comp+'_2':['4','5','6'],
+    comp+'_4':['10','11','12']
+}
 
 main_dir = 'Coleta_2'
 
@@ -48,4 +53,9 @@ def createTree():
             os.chdir('../')
     recursive_createTree(dirs)
 
-createTree()
+def clearFolder(path):
+    files = glob.glob(path)
+    for f in files:
+        os.remove(f)
+#clearFolder('/home/lordwaif/documents/dados_eyeTree/Coleta_2/*/*/fixacion_graph/*')
+#createTree()

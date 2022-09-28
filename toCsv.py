@@ -1,5 +1,6 @@
 import argparse,os
 import pandas as pd
+from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Parametro para execução")
 
@@ -27,9 +28,6 @@ COUNT_FORMAT_DATE = (2,2,1)
 def exclude_conditions(elemento,args):
     ret = []
     for i in args:
-        # #####
-        if elemento[0][0] == '#':
-            ret.append(True)
         if i[1] == '==':
             try:
                 ret.append(int(elemento[i[0]]) == i[2])
@@ -66,39 +64,52 @@ def txt2csv(path_in=PATH_IN,
     with open(path_in,'r',encoding=encoding) as file:
         arquivo = file.readlines()
         file.close()
-    arquivo = [arquivo[i].split(sep) for i in range(len(arquivo))]
-    excluidos = []
-    for i in range(len(arquivo)):
-        if(exclude_conditions(arquivo[i],_exclude_conditions)):
-            excluidos.append(arquivo[i])
+    import re
+    atividades = []
+    mark = -1
+    for i,elem in enumerate(arquivo):
+        if re.match(re.compile('#####,.#####'),elem):
+            atividades.append(arquivo[mark+1:i])
+            mark = i
+    atv = 0
+    for j in atividades:
+        arquivo = [j[i].split(sep) for i in range(len(j))]
+        excluidos = []
+        for i in range(len(arquivo)):
+            if(exclude_conditions(arquivo[i],_exclude_conditions)):
+                excluidos.append(arquivo[i])
+                continue
+            for j in range(len(arquivo[i])):
+                arquivo[i][j] = arquivo[i][j].replace('(','')
+                arquivo[i][j] = arquivo[i][j].replace(')','')
+                arquivo[i][j] = arquivo[i][j].replace('\n','')
+                if has_date:
+                    arquivo[i][j] = arquivo[i][j].replace(date_sep,date_rpl,cfd[0])
+                    arquivo[i][j] = arquivo[i][j].replace(time_sep,time_rpl,cfd[1])
+                    arquivo[i][j] = arquivo[i][j].replace(mill_sep,mill_rpl,cfd[2])
+                else:
+                    arquivo[i][j] = arquivo[i][j].replace(' ','')
+                if(arquivo[i][j] == nan): arquivo[i][j] = None
+                try:
+                    arquivo[i][j] = float(arquivo[i][j])
+                except:
+                    pass
+        if(len(excluidos)==len(arquivo)):
             continue
-        for j in range(len(arquivo[i])):
-            arquivo[i][j] = arquivo[i][j].replace('(','')
-            arquivo[i][j] = arquivo[i][j].replace(')','')
-            arquivo[i][j] = arquivo[i][j].replace('\n','')
-            if has_date:
-                arquivo[i][j] = arquivo[i][j].replace(date_sep,date_rpl,cfd[0])
-                arquivo[i][j] = arquivo[i][j].replace(time_sep,time_rpl,cfd[1])
-                arquivo[i][j] = arquivo[i][j].replace(mill_sep,mill_rpl,cfd[2])
-            else:
-                arquivo[i][j] = arquivo[i][j].replace(' ','')
-            if(arquivo[i][j] == nan): arquivo[i][j] = None
-            try:
-                arquivo[i][j] = float(arquivo[i][j])
-            except:
-                pass
-    i=0
-    while i<len(excluidos):
-        arquivo.remove(excluidos[i])    
-        i+=1
-    # A ultima linha estava vindo vazia, dá pra usar isso ou dropna()
-    if(str(arquivo[-1]) == "['']"):
-        arquivo = arquivo[:-1]
-    if len(arquivo) != 0:
-        df = pd.DataFrame(arquivo)
-        df.columns = COLUMNS_NAMES_DATAFRAME
-        df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y"+date_rpl+"%m"+date_rpl+"%d %H"+time_rpl+"%M"+time_rpl+"%S"+mill_rpl+"%f")
-        df.to_csv(path_out,sep=sep_dataframe,encoding=encoding,index=False)
+        i=0
+        while i<len(excluidos):
+            arquivo.remove(excluidos[i])    
+            i+=1
+        # A ultima linha estava vindo vazia, dá pra usar isso ou dropna()
+        if(str(arquivo[-1]) == "['']"):
+            arquivo = arquivo[:-1]
+        if len(arquivo) != 0:
+            df = pd.DataFrame(arquivo)
+            df.columns = COLUMNS_NAMES_DATAFRAME
+            df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y"+date_rpl+"%m"+date_rpl+"%d %H"+time_rpl+"%M"+time_rpl+"%S"+mill_rpl+"%f")
+            output = Path(path_out)
+            df.to_csv(os.path.join(output.parent,output.stem+'_atv_'+str(atv)+'_'+output.suffix),sep=sep_dataframe,encoding=encoding,index=False)
+            atv += 1
 
 if not(args['many']):
     txt2csv()

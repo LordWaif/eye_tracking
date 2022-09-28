@@ -1,6 +1,14 @@
 ROOT_DATA = '/home/lordwaif/documents/dados_eyeTree'
 ROOT_APPS = '/home/lordwaif/documents/eye_tracking'
 IMAGE_ROOT = '/home/lordwaif/documents/dados_eyeTree/bg.jpeg'
+IMAGE_PATH = '/home/lordwaif/documents/dados_eyeTree/imgs'
+
+IMAGE_NAME_PREFFIX = 'Slide'
+IMAGE_NAME_SUFFIX = '.PNG'
+
+TEMPORAY_COMPACT_FOLDER = '/home/lordwaif/documents/temp_compact'
+
+GRAPH_TITLE_DEFAULT = 'Teste'
 
 DEFAULT_SEP = ','
 DEFAULT_SEP_DF = DEFAULT_SEP

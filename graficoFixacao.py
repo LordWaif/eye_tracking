@@ -13,12 +13,14 @@ parser.add_argument('input-path', type=str, help='caminho para o arquivo csv')
 #opcional
 parser.add_argument('-o','--output-name', default='region_output.csv', type=str, required=False, help='nome do arquivo de saida')
 parser.add_argument('-bg','--bg-image',default=IMAGE_ROOT,type=str,required=False,help='caminho de imagem a ser usada de fundo')
+parser.add_argument('-tbg','--title-bg',default=GRAPH_TITLE_DEFAULT,required=False,help='titulo do grafico gerado')
 
 args = vars(parser.parse_args())
 
 PATH_IN = args['input-path']
 OUTPUT_NAME = args['output_name']
 BG_IMG = args['bg_image']
+BG_TITLE = args['title_bg']
 
 
 class GraficoFixacao():
@@ -61,7 +63,7 @@ class GraficoFixacao():
         plot.update_xaxes(showgrid=False,range=[0,1280])
         plot.update_yaxes(showgrid=False,range=[720,0])
         #titulo+' Nome: '+df['NOME'][0]+' N Fixacoes: '+str(len(ldf))
-        plot.update_layout(title='Teste')
+        plot.update_layout(title=BG_TITLE)
 
         plot.update_layout(template="plotly_white")
         #plot.update_yaxes(autorange="reversed")
