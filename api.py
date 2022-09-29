@@ -1,7 +1,7 @@
 import os
 from sys import stdout
 from tqdm import tqdm
-from config import GRAPH_TITLE_DEFAULT, IMAGE_NAME_PREFFIX, IMAGE_NAME_SUFFIX, IMAGE_PATH, ROOT_APPS, TEMPORAY_COMPACT_FOLDER
+from config import GRAPH_TITLE_DEFAULT, IMAGE_NAME_PREFFIX, IMAGE_NAME_SUFFIX, IMAGE_PATH, ROOT_APPS, TEMPORAY_COMPACT_FOLDER, VIRTUAL_ENVIROMENT
 from makeTreeDir import OUTPUT_CSVTOFCSV,OUTPUT_TXTTOCSV,OUTPUT_FCSVTOFGRAPH,BG_MAP,INPUT_CSVTOCSVHEAT, cdCreate,createTree
 from pathlib import Path
 import re
@@ -103,10 +103,19 @@ def execInputHeatMap():
         output = Path.joinpath(i.parent.parent.absolute(),INPUT_CSVTOCSVHEAT,i.stem+'.csv')
 
         cmd = "python3 toCsv.py "+input.__str__()+" -o "+output.__str__()+" -hm True"
-        print(cmd)
+        #print(cmd)
         #print("toCsv.py"+output.__str__()+'\n')
         os.popen(cmd=cmd).read()
         bar.update(1)
+
+def createvEnviroment():
+    if not(os.path.exists(VIRTUAL_ENVIROMENT)):
+        os.popen('virtualenv '+VIRTUAL_ENVIROMENT+' --python=python2.7')
+    p_enviroment = Path(VIRTUAL_ENVIROMENT)
+    os.popen('source '+p_enviroment.name+'/bin/activate')
+    #deactivate
+    ...
+
 
 
 
@@ -116,7 +125,8 @@ def main():
     #execFixacao()
     #execFGraph()
     #compactAll()
-    execInputHeatMap()
+    #execInputHeatMap()
+    createvEnviroment()
     ...
 
 main()

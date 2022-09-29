@@ -13,7 +13,7 @@ common_prefix = 'saeb'
 comp = common_prefix
 
 LAYER_2 = [comp+'_2',comp+'_4']
-LAYER_1 = os.listdir('/home/lordwaif/documents/dados_eye/')
+LAYER_1 = os.listdir('/home/lordwaif/documents/dados_eyeTree/Coleta_2')
 
 BG_MAP = {
     comp+'_2':['4','5','6'],
