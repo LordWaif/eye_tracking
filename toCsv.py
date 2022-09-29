@@ -10,11 +10,13 @@ parser.add_argument('input-path', type=str, help='caminho para o arquivo txt')
 #opcional
 parser.add_argument('-o','--output-name', default='output.csv', type=str, required=False, help='nome do arquivo de saida')
 parser.add_argument('-m','--many', type=bool, default=False,required=False, help='conversao para varios txt do caminho')
+parser.add_argument('-hm','--heat-map',type=bool,default=False,required=False)
 
 args = vars(parser.parse_args())
 
 PATH_IN = args['input-path']
 OUTPUT_NAME = args['output_name']
+IS_TO_HEATMAP = args['heat_map']
 
 #print(PATH_IN)
 
@@ -111,14 +113,28 @@ def txt2csv(path_in=PATH_IN,
             df.to_csv(os.path.join(output.parent,output.stem+'_atv_'+str(atv)+'_'+output.suffix),sep=sep_dataframe,encoding=encoding,index=False)
             atv += 1
 
-if not(args['many']):
-    txt2csv()
+def adapterInputHeatMap(path_in=PATH_IN,
+            path_out=OUTPUT_NAME,
+            encoding=DEFAULT_ENCODING,
+            sep_dataframe=DEFAULT_SEP_DF):
+    dataframe_input = pd.read_csv(path_in,sep=sep_dataframe,encoding=encoding)
+    df_aux = pd.DataFrame([dataframe_input['X_TELA'],dataframe_input['Y_TELA']]).T
+    df_aux.columns = ['X','Y']
+    df_aux = df_aux.astype(int)
+    df_aux.to_csv(path_out,sep=sep_dataframe,index=False,encoding=encoding)
+    ...
+
+if not(IS_TO_HEATMAP):
+    if not(args['many']):
+        txt2csv()
+    else:
+        c = 0
+        for i in os.listdir(PATH_IN):
+            c += 1
+            p,ex = os.path.splitext(OUTPUT_NAME)
+            txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,ex]))
 else:
-    c = 0
-    for i in os.listdir(PATH_IN):
-        c += 1
-        p,ex = os.path.splitext(OUTPUT_NAME)
-        txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,ex]))
+    adapterInputHeatMap()
 
 
 #COMMAND python3 toCsv.py ./input -o ./output/saida.csv -m true

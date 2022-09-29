@@ -2,7 +2,7 @@ import os
 from sys import stdout
 from tqdm import tqdm
 from config import GRAPH_TITLE_DEFAULT, IMAGE_NAME_PREFFIX, IMAGE_NAME_SUFFIX, IMAGE_PATH, ROOT_APPS, TEMPORAY_COMPACT_FOLDER
-from makeTreeDir import OUTPUT_CSVTOFCSV,OUTPUT_TXTTOCSV,OUTPUT_FCSVTOFGRAPH,BG_MAP, cdCreate,createTree
+from makeTreeDir import OUTPUT_CSVTOFCSV,OUTPUT_TXTTOCSV,OUTPUT_FCSVTOFGRAPH,BG_MAP,INPUT_CSVTOCSVHEAT, cdCreate,createTree
 from pathlib import Path
 import re
 
@@ -91,13 +91,32 @@ def compactAll(directory = TEMPORAY_COMPACT_FOLDER):
     if return_code != 0:
         raise subprocess.CalledProcessError(return_code, cmd)
 
+def execInputHeatMap():
+    os.chdir(ROOT_APPS)
+    csv_finders = Path('/home/lordwaif/documents/dados_eyeTree').rglob("*.csv")
+    def fill(elem):
+        return elem.parts[-2]==OUTPUT_TXTTOCSV
+    csv_finders = list(filter(fill,csv_finders))
+    bar = tqdm(total=len(csv_finders),desc="run_task={}".format("Gerando csv's para HeatMap"))
+    for i in csv_finders:
+        input = i.absolute()
+        output = Path.joinpath(i.parent.parent.absolute(),INPUT_CSVTOCSVHEAT,i.stem+'.csv')
+
+        cmd = "python3 toCsv.py "+input.__str__()+" -o "+output.__str__()+" -hm True"
+        print(cmd)
+        #print("toCsv.py"+output.__str__()+'\n')
+        os.popen(cmd=cmd).read()
+        bar.update(1)
+
 
 
 def main():
     #createTree()
-    execToCsv()
-    execFixacao()
-    execFGraph()
-    compactAll()
+    #execToCsv()
+    #execFixacao()
+    #execFGraph()
+    #compactAll()
+    execInputHeatMap()
+    ...
 
 main()

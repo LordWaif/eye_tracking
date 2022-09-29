@@ -118,13 +118,13 @@ class Fixacao():
         y_medio = grp['Y_REGIAO_MEDIO_'+columns_sufix].mean()
 
         region_counter = pd.DataFrame([duracoes,x_medio,y_medio,grp.count()['CLASSE'],grp['DATE_TIME'].max()]).T
-        region_counter.columns = ['MS','X','Y','DURACAO_FRAMES','DATE_FIM']
-
-        region_counter = region_counter[region_counter['MS']>TIME_MILLIS_REGION]
-        region_counter = region_counter[region_counter['X']<SCREEN_W]
-        region_counter = region_counter[region_counter['X']>0]
-        region_counter = region_counter[region_counter['Y']>0]
-        region_counter = region_counter[region_counter['Y']<SCREEN_H]
+        col = COLUMNS_FIXACION_REGIONS
+        region_counter.columns = col
+        region_counter = region_counter[region_counter[col[0]]>TIME_MILLIS_REGION]
+        region_counter = region_counter[region_counter[col[1]]<SCREEN_W]
+        region_counter = region_counter[region_counter[col[1]]>0]
+        region_counter = region_counter[region_counter[col[2]]>0]
+        region_counter = region_counter[region_counter[col[2]]<SCREEN_H]
         return region_counter
 
 if not(args['many']):

@@ -3,6 +3,8 @@ ROOT_APPS = '/home/lordwaif/documents/eye_tracking'
 IMAGE_ROOT = '/home/lordwaif/documents/dados_eyeTree/bg.jpeg'
 IMAGE_PATH = '/home/lordwaif/documents/dados_eyeTree/imgs'
 
+COLUMNS_FIXACION_REGIONS = ['MS','X','Y','DURACAO_FRAMES','DATE_FIM']
+
 IMAGE_NAME_PREFFIX = 'Slide'
 IMAGE_NAME_SUFFIX = '.PNG'
 
