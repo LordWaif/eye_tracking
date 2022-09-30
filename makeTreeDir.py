@@ -7,7 +7,7 @@ OUTPUT_TXTTOCSV = 'csv_structured'
 OUTPUT_CSVTOFCSV = 'csv_fixacion'
 OUTPUT_FCSVTOFGRAPH = 'fixacion_graph'
 INPUT_CSVTOCSVHEAT = 'csv_heat'
-
+OUTPUT_CSVTOHMGRAPH = 'heat_map_graph'
 
 common_prefix = 'saeb'
 comp = common_prefix
@@ -55,8 +55,9 @@ def createTree():
     recursive_createTree(dirs)
 
 def clearFolder(path):
-    files = glob.glob(path)
-    for f in files:
-        os.remove(f)
+    folders = glob.glob(path)
+    for folder in folders:
+        for file in os.listdir(folder):
+            os.remove(os.path.join(folder,file))
 #clearFolder('/home/lordwaif/documents/dados_eyeTree/Coleta_2/*/*/fixacion_graph/*')
 #createTree()

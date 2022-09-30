@@ -121,7 +121,7 @@ def adapterInputHeatMap(path_in=PATH_IN,
     df_aux = pd.DataFrame([dataframe_input['X_TELA'],dataframe_input['Y_TELA']]).T
     df_aux.columns = ['X','Y']
     df_aux = df_aux.astype(int)
-    df_aux.to_csv(path_out,sep=sep_dataframe,index=False,encoding=encoding)
+    df_aux.to_csv(path_out,sep=sep_dataframe,index=False,header=False,encoding=encoding)
     ...
 
 if not(IS_TO_HEATMAP):
