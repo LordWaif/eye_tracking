@@ -1,155 +1,147 @@
 #%%
 import pandas as pd
-#import matplotlib.pyplot as plt
-import plotly.graph_objects as px 
+from config import *
 import numpy as np
-from PIL import Image
-from datetime import datetime as dt, timedelta
-import os
+from datetime import datetime as dt
+import argparse,os
 
-from GazePointHeatMap.heatmap import segmentar
-if __name__ == '__name__':
-    PATH = "video_1_multiplicacao"
-def gerarTodaFixacoes(PATH,img_bg):
-    df = pd.read_csv(PATH,sep=';')
-    df = df.drop(columns=['Unnamed: 0','V1','V2','V3'])
+parser = argparse.ArgumentParser(description="Parametro para execução")
 
-    def regionFinder(x,y,r):
+#obrigatorio
+parser.add_argument('input-path', type=str, help='caminho para o arquivo csv')
+
+#opcional
+parser.add_argument('-o','--output-name', default='region_output.csv', type=str, required=False, help='nome do arquivo de saida')
+parser.add_argument('-m','--many', type=bool, default=False,required=False, help='processamento de varios csv"s')
+
+args = vars(parser.parse_args())
+
+PATH_IN = args['input-path']
+OUTPUT_NAME = args['output_name']
+
+def setAxis(x,y,range_x,range_y):
+    x_anterior = x-range_x
+    x_fim = x + range_x
+    y_anterior = y-range_y
+    y_fim = y + range_y
+    return [x_anterior,x_fim,y_anterior,y_fim]
+
+class Fixacao():
+    def __init__(self,PATH) -> None:
+        self.PATH = PATH
+        dataframe = pd.read_csv(PATH,sep=DEFAULT_SEP_DF,encoding=DEFAULT_ENCODING)
+        dataframe = dataframe.drop(columns=DEFAULT_COLUMNS_TO_BE_DROPPED)
+
+        self.dataframe = dataframe
+        self.regions = None
+    
+    def rangeCalc(self,look,ind,x,y,range_x=RANGE_X,range_y=RANGE_Y):
         regiao = []
         count_regiao = 1
-        x_anterior = x[0]-r
-        x_fim = x[0] + r
 
-        y_anterior = y[0]-r
-        y_fim = y[0] + r
-
-        regiao = []
-        count_regiao = 1
+        x_anterior,x_fim,y_anterior,y_fim = setAxis(x[0],y[0],range_x,range_y)
         lista_x_medio,lista_y_medio = [],[]
+
         coordenadas_tela = np.transpose(np.asarray([x,y]))
+        dead_area = False
+        counter_look = 0
         for i,j in coordenadas_tela:
+            if(look[counter_look] == 1):
+                dead_area = False
+            if dead_area:
+                x_anterior,x_fim,y_anterior,y_fim = setAxis(i,j,range_x,range_y)
+
+                lista_x_medio.append((x_anterior+x_fim)/2)
+                lista_y_medio.append((y_anterior+y_fim)/2)
+                regiao.append(-1)
+                #print([ind[counter_look],regiao[-1],lista_x_medio[-1],lista_y_medio[-1]])
+                counter_look += 1
+                continue
             x_regiao = (i >= x_anterior and i<x_fim)
             y_regiao = (j >= y_anterior and j<y_fim)
+            if not(x_regiao and y_regiao) or (look[counter_look] == 0):
+                dead_area = True
+                x_anterior,x_fim,y_anterior,y_fim = setAxis(i,j,range_x,range_y)
+                count_regiao+=1
             lista_x_medio.append((x_anterior+x_fim)/2)
             lista_y_medio.append((y_anterior+y_fim)/2)
-            if not(x_regiao and y_regiao):
-                x_anterior,x_fim = i-r,i+r
-                y_anterior,y_fim = j-r,j+r
-                count_regiao+=1
-            regiao.append(count_regiao)
+            if look[counter_look] == 0:
+                regiao.append(-1)
+            else:
+                regiao.append(count_regiao)
+            #print([ind[counter_look],regiao[-1],lista_x_medio[-1],lista_y_medio[-1]])
+            counter_look += 1
+        #print(len(regiao),len(lista_x_medio),len(lista_y_medio))
         return [regiao,lista_x_medio,lista_y_medio]
 
+    def regionFinder(self,columns_tobe_process=COLUMNS_TO_BE_PROCESS):
+        axisX = self.dataframe[columns_tobe_process['X']].values
+        axisY = self.dataframe[columns_tobe_process['Y']].values
+        look = self.dataframe[columns_tobe_process['C']].values
+        ## Calculando regiões
+        self.dataframe['REGIAO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['X_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']],self.dataframe['Y_REGIAO_MEDIO_'+COLUMNS_TO_BE_PROCESS['N']] = self.rangeCalc(look,self.dataframe['INDICE'].values,axisX,axisY)
+        #self.dataframe.to_csv(self.PATH,sep=DEFAULT_SEP_DF,encoding=DEFAULT_ENCODING,index=False)
+        ##Processando Regiões
+        return self.regionProcess()
 
-    def gerarFixacao(df,tipo='tela',r=25,t=100,w = 1280,h = 720,titulo='',image_bg=img_bg):
-        tipo = tipo.upper()
-        x = df['X_'+tipo].values
-        y = df['Y_'+tipo].values
-        df['REGIAO_'+tipo],df['X_REGIAO_MEDIO_'+tipo],df['Y_REGIAO_MEDIO_'+tipo] = regionFinder(x,y,r)
-        grp = df.groupby('REGIAO_'+tipo)
-        #df.to_csv(os.path.join(os.path.dirname(PATH),'verificacao.csv'),sep=';')
-        x_medio = grp['X_REGIAO_MEDIO_'+tipo].mean()
-        y_medio = grp['Y_REGIAO_MEDIO_'+tipo].mean()
-        t_inicio = grp['DATE_TIME'].min().tolist()
-        t_fim = grp['DATE_TIME'].max().tolist()
+    def getRegions(self):
+        if self.regions == None:
+            self.regions = self.regionFinder()
+        return self.regions
+    
+    def saveRegions(self,dataframe,
+                    path_out,
+                    sep_dataframe=DEFAULT_SEP_DF,
+                    encoding=DEFAULT_ENCODING):
+        dataframe.to_csv(path_out,sep=sep_dataframe,encoding=encoding,index=False)
 
+    def group(self,colum_tobe_grouped='REGIAO_'+COLUMNS_TO_BE_PROCESS['N']):
+        return self.dataframe[self.dataframe[colum_tobe_grouped] != -1].groupby(colum_tobe_grouped)
+
+    def timeProcess(self,grp):
+        t_inicio = grp[COLUMN_DATE_TIME].min().tolist()
+        t_fim = grp[COLUMN_DATE_TIME].max().tolist()
         t_inicio = np.array([dt.strptime(i,r'%Y-%m-%d %H:%M:%S.%f') for i in t_inicio])
         t_fim = np.array([dt.strptime(i,r'%Y-%m-%d %H:%M:%S.%f') for i in t_fim])
         duracao = t_fim - t_inicio
         duracao = np.array([i.total_seconds()*1000 for i in duracao])
-        reg_count = pd.DataFrame([duracao,x_medio,y_medio,grp.count()['CLASSE'],grp['DATE_TIME'].max()]).T
-        reg_count.columns = ['MS','X','Y','DURACAO_FRAMES','DATE_FIM']
-        reg_count = reg_count[reg_count['MS']>t]
-        reg_count = reg_count[reg_count['X']<w]
-        reg_count = reg_count[reg_count['X']>0]
-        reg_count = reg_count[reg_count['Y']>0]
-        reg_count = reg_count[reg_count['Y']<h]
-        from GazePointHeatMap import heatmap,variaveis as var
-        tempo_inicio_geral = dt.strptime(df['DATE_TIME'].min(),r'%Y-%m-%d %H:%M:%S.%f')
-        tempo_video = np.array([dt.strptime(i,r'%Y-%m-%d %H:%M:%S.%f') for i in reg_count['DATE_FIM'].tolist()])-tempo_inicio_geral
-        #str((timedelta(seconds=i.total_seconds()).seconds)//60)+':'+str((timedelta(seconds=i.total_seconds()).seconds)%60)
-        #str(timedelta(seconds=i.total_seconds()))
 
-        tempo_video = [str(timedelta(seconds=i.total_seconds())).split('.')[0] for i in tempo_video]
-        reg_count['DATE_FIM'] = tempo_video
-        reg_count = reg_count.sort_values('DATE_FIM')
-        if(var.segmentar):
-            l = heatmap.segmentar(reg_count)
-            with open ('GazePointHeatMap/n_fixacoes.txt','w') as file:
-                for i in l :
-                    file.write(str(len(i))+'\n')
-                file.close()
-        else:
-            l = [reg_count]
-            with open ('GazePointHeatMap/n_fixacoes.txt','w') as file:
-                file.write(str(len(reg_count)))
-                file.close()
-        if(reg_count['MS'].empty):
-            tam_maximo = 100
-        else:
-            tam_maximo = max(reg_count['MS'])
-        #tempo_fim_geral = dt.strptime(df['DATE_TIME'].max(),r'%Y-%m-%d %H:%M:%S.%f')
-        #duracao_video = (tempo_fim_geral-tempo_inicio_geral).total_seconds()
-        #print(reg_count)
-        def grafico_linha(list_df):
-            for i,ldf in enumerate(list_df):
-                #print(ldf['MS'])
-                plot = px.Figure(
-                    data=[px.Line(
-                        x=ldf['DATE_FIM'],
-                        y=ldf['MS'].cumsum(axis = 0)/1000,
-                    )],
-                )
-                #plot.update_xaxes(showgrid=False,range=[0,1280])
-                #plot.update_yaxes(showgrid=False,range=[0,720])
-                plot.update_layout(title=titulo+' de linha regiao'+str(i+1))
-                plot.update_layout(template="plotly_white")
-                #plot.update_yaxes(autorange="reversed")
-                plot.write_html(os.path.join(os.path.dirname(PATH),os.path.splitext(PATH)[0].split('/')[-1]+titulo+'_Fixacao Acumulada_'+df['NOME'][0]+'_'+str(i)+'_.html'))
-                #plot.show()
-        def graficos_fixacao(list_df):
-            image = Image.open(image_bg)
-            for i,ldf in enumerate(list_df):
-                plot = px.Figure(
-                    data=[px.Scatter(
-                        x=ldf['X'],
-                        y=ldf['Y'],
-                        mode='markers',
-                        marker=dict(
-                            size=ldf['MS'].astype('float32'),
-                            sizemode='area', 
-                            sizeref=2.*tam_maximo/(50.**2), 
-                            sizemin=4,
-                        ),
-                    )],
-                    layout=px.Layout(
-                        images=[
-                            dict(
-                            visible=True,
-                            source=image,
-                            xref="x",
-                            yref="y",
-                            x=0,
-                            y=3,
-                            sizex=1280,
-                            sizey=720,
-                            sizing="stretch",
-                            opacity=0.5,
-                            layer="below")
-                        ]
-                    )
-                )
+        tempo_inicio_geral = dt.strptime(grp[COLUMN_DATE_TIME].min().iloc[0],r'%Y-%m-%d %H:%M:%S.%f')
+        tempo_final_geral = dt.strptime(grp[COLUMN_DATE_TIME].max().iloc[-1],r'%Y-%m-%d %H:%M:%S.%f')
+        return [duracao,tempo_inicio_geral,tempo_final_geral]
+    
+    def regionProcess(self,columns_sufix=COLUMNS_TO_BE_PROCESS['N']):
+        grp = self.group()
+        duracoes = self.timeProcess(grp)[0]
 
-                plot.update_xaxes(showgrid=False,range=[0,1280])
-                plot.update_yaxes(showgrid=False,range=[720,0])
-                plot.update_layout(title=titulo+' Nome: '+df['NOME'][0]+' N Fixacoes: '+str(len(ldf)))
+        x_medio = grp['X_REGIAO_MEDIO_'+columns_sufix].mean()
+        y_medio = grp['Y_REGIAO_MEDIO_'+columns_sufix].mean()
 
-                plot.update_layout(template="plotly_white")
-                #plot.update_yaxes(autorange="reversed")
-                plot.write_html(os.path.join(os.path.dirname(PATH),os.path.splitext(PATH)[0].split('/')[-1]+titulo+'_'+df['NOME'][0]+'_'+str(i)+'_.html'))
-                #plot.show()
-        graficos_fixacao(l)
-        grafico_linha(l)
+        region_counter = pd.DataFrame([duracoes,x_medio,y_medio,grp.count()['CLASSE'],grp['DATE_TIME'].max()]).T
+        col = COLUMNS_FIXACION_REGIONS
+        region_counter.columns = col
+        region_counter = region_counter[region_counter[col[0]]>TIME_MILLIS_REGION]
+        region_counter = region_counter[region_counter[col[1]]<SCREEN_W]
+        region_counter = region_counter[region_counter[col[1]]>0]
+        region_counter = region_counter[region_counter[col[2]]>0]
+        region_counter = region_counter[region_counter[col[2]]<SCREEN_H]
+        return region_counter
 
-    gerarFixacao(df,tipo='tela')
+if not(args['many']):
+    f = Fixacao(PATH_IN)
+    regioes = f.getRegions()
+    p,ex = os.path.splitext(OUTPUT_NAME)
+    c = 0
+    f.saveRegions(regioes,path_out=path_design([p,str(c),ex]))
+else:
+    c = 0
+    for i in os.listdir(PATH_IN):
+        c += 1
+        p,ex = os.path.splitext(OUTPUT_NAME)
+        f = Fixacao(os.path.join(PATH_IN,i))
+        regioes = f.getRegions()
+        f.saveRegions(regioes,path_out=path_design([p,ex]))
+        #txt2csv(path_in=os.path.join(PATH_IN,i),path_out=path_design([p,str(c),ex]))
 
-# %%
+#COMMAND python3 fixacao.py ./output -o ./output_regions/regioes.csv -m true
+#COMMAND python3 fixacao.py ./out -o ./out_regions/regioes.csv -m true

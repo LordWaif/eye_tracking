@@ -3,7 +3,7 @@ from ntpath import join
 import os
 from paraCsv import transformCsv
 from GazePointHeatMap.heatmap import segmentar
-from GazePointHeatMap.gazeheatplot import gerarGazeHeatMap
+from gazeheatplot import gerarGazeHeatMap
 #Porque eu comentei?
 from fixacao import gerarTodaFixacoes
 import re,pandas as pd
