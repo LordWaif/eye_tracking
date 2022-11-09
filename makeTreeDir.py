@@ -2,25 +2,28 @@ import os,glob
 
 from config import ROOT_DATA,ROOT_APPS
 #Config
-DEFAULT_DIRECTORIES = ['input_txt','csv_structured','csv_fixacion','fixacion_graph','heat_map_graph','csv_heat']
+DEFAULT_DIRECTORIES = ['input_txt','csv_structured','csv_fixacion','fixacion_graph','heat_map_graph','csv_heat','n_fix_table']
 OUTPUT_TXTTOCSV = 'csv_structured'
 OUTPUT_CSVTOFCSV = 'csv_fixacion'
 OUTPUT_FCSVTOFGRAPH = 'fixacion_graph'
 INPUT_CSVTOCSVHEAT = 'csv_heat'
 OUTPUT_CSVTOHMGRAPH = 'heat_map_graph'
+OUTPUT_NFIXTABLE = 'n_fix_table'
 
 common_prefix = 'saeb'
 comp = common_prefix
 
-LAYER_2 = [comp+'_2',comp+'_4']
-LAYER_1 = os.listdir('/home/lordwaif/documents/dados_eyeTree/Coleta_2')
+LAYER_2 = ['dados']
+#LAYER_2 = [comp+'_2',comp+'_4']
+#LAYER_1 = os.listdir('/home/lordwaif/documents/dados_eye/Coleta')
+LAYER_1 = os.listdir('/home/lordwaif/documents/eye_leo/Entrega Piaui/')
 
 BG_MAP = {
     comp+'_2':['4','5','6'],
     comp+'_4':['10','11','12']
 }
 
-main_dir = 'Coleta_2'
+main_dir = 'Coleta'
 
 def createTreeDict():
     dirs = dict()
@@ -59,5 +62,5 @@ def clearFolder(path):
     for folder in folders:
         for file in os.listdir(folder):
             os.remove(os.path.join(folder,file))
-#clearFolder('/home/lordwaif/documents/dados_eyeTree/Coleta_2/*/*/fixacion_graph/*')
+#clearFolder("/home/lordwaif/documents/eye_leoTree/Coleta/*/dados/*/*")
 #createTree()
