@@ -2,13 +2,22 @@ import os,glob
 
 from config import ROOT_DATA,ROOT_APPS
 #Config
-DEFAULT_DIRECTORIES = ['input_txt','csv_structured','csv_fixacion','fixacion_graph','heat_map_graph','csv_heat','n_fix_table']
 OUTPUT_TXTTOCSV = 'csv_structured'
 OUTPUT_CSVTOFCSV = 'csv_fixacion'
 OUTPUT_FCSVTOFGRAPH = 'fixacion_graph'
 INPUT_CSVTOCSVHEAT = 'csv_heat'
 OUTPUT_CSVTOHMGRAPH = 'heat_map_graph'
 OUTPUT_NFIXTABLE = 'n_fix_table'
+OUTPUT_SACADE = 'sacadas'
+DEFAULT_DIRECTORIES = ['input_txt',
+    OUTPUT_TXTTOCSV,
+    OUTPUT_CSVTOFCSV,
+    OUTPUT_FCSVTOFGRAPH,
+    OUTPUT_CSVTOHMGRAPH,
+    INPUT_CSVTOCSVHEAT,
+    OUTPUT_NFIXTABLE,
+    OUTPUT_SACADE]
+
 
 common_prefix = 'saeb'
 comp = common_prefix

@@ -3,7 +3,7 @@ import os
 from sys import stdout
 from tqdm import tqdm
 from config import GRAPH_TITLE_DEFAULT, IMAGE_NAME_PREFFIX, IMAGE_NAME_SUFFIX, IMAGE_PATH, PATH_N_FIX_TABLE, ROOT_APPS, TEMPORAY_COMPACT_FOLDER, VIRTUAL_ENVIROMENT
-from makeTreeDir import INPUT_CSVTOCSVHEAT,OUTPUT_CSVTOFCSV, OUTPUT_CSVTOHMGRAPH,OUTPUT_TXTTOCSV,OUTPUT_FCSVTOFGRAPH,BG_MAP,INPUT_CSVTOCSVHEAT,main_dir, cdCreate,createTree,clearFolder
+from makeTreeDir import INPUT_CSVTOCSVHEAT,OUTPUT_CSVTOFCSV, OUTPUT_CSVTOHMGRAPH,OUTPUT_TXTTOCSV,OUTPUT_FCSVTOFGRAPH,BG_MAP,OUTPUT_NFIXTABLE,INPUT_CSVTOCSVHEAT,OUTPUT_SACADE,main_dir, cdCreate,createTree,clearFolder
 from pathlib import Path
 import re
 
@@ -229,8 +229,25 @@ def fload():
         print(cmd)
         os.popen(cmd)
 
+def sacade():
+    csv_finders = Path(SEARCH_DATA_PATH).rglob("*.csv")
+    def fill(elem):
+        return elem.parts[-2]==OUTPUT_TXTTOCSV
+    csv_finders = list(filter(fill,csv_finders))
+    bar = tqdm(total=len(csv_finders),desc="run_task={}".format("Calculando numero de sacadas"))
+    for i in csv_finders:
+        input = i
+        output = i.parent.parent.joinpath(OUTPUT_SACADE)
+        cmd = "python3 sacadasCalc.py '"+input.__str__()+"' -o '"+output.__str__()+"'"
+        with open(input.parent.parent.joinpath(OUTPUT_NFIXTABLE,'numero.txt').__str__(),'w',encoding='utf-8') as file:
+            file.write(str(os.popen(cmd).read()))
+            file.close()
+        bar.update(1)
+    ...
+
 def main():
-    '''createTree()
+    '''
+    createTree()
     fload()
     execToCsv()
     execFixacao()
@@ -242,6 +259,7 @@ def main():
     '''
     '''
     countRegionsL()'''
+    sacade()
     ...
 
 if __name__ == '__main__':
