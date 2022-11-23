@@ -39,6 +39,7 @@ def execFixacao():
         output = Path.joinpath(i.parent.parent.absolute(),OUTPUT_CSVTOFCSV,i.stem+'.csv')
 
         cmd = "python3 fixacao.py '"+input.__str__()+"' -o '"+output.__str__()+"'"
+        #print(input)
         #print("fixacao.py"+output2.__str__()+'\n')
         os.popen(cmd=cmd).read()
         bar.update(1)
@@ -235,30 +236,32 @@ def sacade():
         return elem.parts[-2]==OUTPUT_TXTTOCSV
     csv_finders = list(filter(fill,csv_finders))
     bar = tqdm(total=len(csv_finders),desc="run_task={}".format("Calculando numero de sacadas"))
+    r = []
     for i in csv_finders:
         input = i
         output = i.parent.parent.joinpath(OUTPUT_SACADE)
         cmd = "python3 sacadasCalc.py '"+input.__str__()+"' -o '"+output.__str__()+"'"
+        res = os.popen(cmd).read()
+        r.append(input.parts[-4]+' | '+input.parts[-1]+' | Sacadas Qtd: '+str(res))
         with open(input.parent.parent.joinpath(OUTPUT_NFIXTABLE,'numero.txt').__str__(),'w',encoding='utf-8') as file:
-            file.write(str(os.popen(cmd).read()))
+            file.write(str(res))
             file.close()
         bar.update(1)
+    with open('numero_de_sacadas.txt','w') as f:
+        f.writelines(r)
     ...
 
 def main():
-    '''
-    createTree()
-    fload()
-    execToCsv()
-    execFixacao()
-    execFGraph()
-    execInputHeatMap()
+    #createTree()
+    #fload()
+    #execToCsv()
+    #execFixacao()
+    #execFGraph()
+    #execInputHeatMap()
     #createvEnviroment()
-    execHeatMap()
-    compactAll()
-    '''
-    '''
-    countRegionsL()'''
+    #execHeatMap()
+    #compactAll()
+    #countRegionsL()
     sacade()
     ...
 
