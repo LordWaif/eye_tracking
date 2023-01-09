@@ -9,6 +9,7 @@ VIRTUAL_ENVIROMENT = '/home/lordwaif/documents/venv'
 PATH_N_FIX_TABLE = '/home/lordwaif/documents/dados_eyeTree'
 
 COLUMNS_FIXACION_REGIONS = ['MS','X','Y','DURACAO_FRAMES','DATE_FIM']
+OUTLIER = 1000
 
 #IMAGE_NAME_PREFFIX = 'Slide'
 IMAGE_NAME_PREFFIX = 'Video_'

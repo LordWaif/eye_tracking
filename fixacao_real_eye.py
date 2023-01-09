@@ -115,8 +115,11 @@ class Fixacao():
     
     def regionProcess(self,columns_sufix=COLUMNS_TO_BE_PROCESS['N']):
         grp = self.group()
-        #print(self.dataframe)
         duracoes = self.timeProcess(grp)[0]
+        '''for i in grp:
+            if i[1]['MS'].sum() > 10000:
+                ...
+                print(i[1]['MS'])'''
 
         x_medio = grp['X_REGIAO_MEDIO_'+columns_sufix].mean()
         y_medio = grp['Y_REGIAO_MEDIO_'+columns_sufix].mean()
