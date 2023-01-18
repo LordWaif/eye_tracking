@@ -8,23 +8,34 @@ import numpy as np
 from config import COLUMNS_TO_BE_PROCESS,ROOT_APPS,OUTLIER
 #from math import isnan
 
+GROUPS = dict()
+GROUPS['soma_2'] = (['davi','enzo','gabriel','leonardo','rafael yuri'],'soma2.png')
+GROUPS['contagem_e_soma_material_completo'] = (['davi','enzo','gabriel','leonardo','rafael yuri'],'soma_material_concreto.png')
+
+GROUPS['adicao_robo'] = (['alice','luis otavio','nicolle','pedro felipe','robert','theo','wenzo'],'adicao_robo.png')
+GROUPS['adicao_baixa_acessibilidade'] = (['alice','luis otavio','nicolle','pedro felipe','robert','theo','wenzo'],'adicao_baixa_acessibilidade.png')
+
+GROUPS['contagem_passaro'] = (['arthur','gael','joão victor','maria helena'],'contagem_passaro.png')
+GROUPS['contagem_e_soma_material_completo'] = (['arthur','gael','joão victor','maria helena'],'contagem_material_concreto.png')
+
 PATH_RAW_REAL_EYE = '/home/lordwaif/documents/usecase_andiara/raw2/'
 FOLDER_GROUPBY = 'groupby'
 FIXACION_MY = 'csv_fixacion'
 #PATH_TARGET_GROUP = Path(PATH_RAW_REAL_EYE).parent.joinpath(FOLDER_GROUPBY)
 PATH_TARGET_GROUP = Path(PATH_RAW_REAL_EYE).parent.joinpath(FIXACION_MY)
+PATH_TARGET_HEAT_INPUT = Path(PATH_RAW_REAL_EYE).parent.joinpath('alunos')
+INPUT_CSVTOCSVHEAT = 'csv_heat_input'
 
 def separateByTarget(columns_to_be_process=COLUMNS_TO_BE_PROCESS):
     lista = Path(PATH_RAW_REAL_EYE).glob("*.csv")
     for i in lista:
         data = pd.read_csv(i.__str__())
-        data = data[data['participant_tags'].notna()]
+        #data = data[data['participant_tags'].fillna(0)]
+        data['participant_tags'] = data['participant_tags'].fillna('desconhecido')
         participantes = set(list(data['participant_id']))
         #print(data['participant_tags'])
         for j in participantes:
             aluno = data[data['participant_id']==j]
-            #print(isnan(aluno['participant_tags'].iloc[0]))
-            #print(aluno['test_raw_data'].iloc[0])
             gaze = np.asarray(eval(aluno['test_raw_data'].iloc[0]))
             x_gaze = gaze[:,0]
             y_gaze = gaze[:,1]
@@ -59,7 +70,7 @@ def execFixacao():
         #input = Path.joinpath(i.parent.parent.absolute(),OUTPUT_TXTTOCSV,i.stem+'.csv')
         input = i.__str__()
         output = Path.joinpath(i.parent.parent.absolute(),OUTPUT_CSVTOFCSV,i.stem+'.csv')
-        print(output)
+        #print(output)
 
         cmd = "python3 fixacao_real_eye.py '"+input.__str__()+"' -o '"+output.__str__()+"'"
         #print(input)
@@ -82,18 +93,70 @@ def execFGraph():
         input = i.absolute()
         output = Path.joinpath(i.parent.parent.absolute(),OUTPUT_FCSVTOFGRAPH,i.stem+'.html')
         bg_path = ''
-        print(input)
         try:
-            bg_path = " -bg '"+list(input.parent.parent.joinpath('imgs').glob(input.stem.split('-')[1]+"*"))[0].__str__()+"'"
+            bg_path = " -bg '"+input.parent.parent.joinpath('imgs').joinpath(input.stem[::-1].split('_',1)[1][::-1]+".png").__str__()+"'"
         except IndexError:
             print('-----\nImagem não encontrada em:',input,'\n------')
-        #print(bg_path)
-        cmd = "python3 graficoFixacao.py '"+input.__str__()+"' -o '"+output.__str__()+"'"+bg_path
-        print(os.popen(cmd=cmd).read())
+        if(input.stem.__str__().find('contagem_e_soma_material_completo') != -1):
+            bg_path = " -bg '"+input.parent.parent.joinpath('imgs').joinpath("soma_material_completo.png").__str__()+"'"
+            cmd = "python3 graficoFixacao.py '"+input.__str__()+"' -o '"+output.parent.joinpath(output.stem.__str__().replace('contagem_e_','')+'.html').__str__()+"'"+bg_path+" -tbg '"+i.__str__()[::-1].split('_',1)[0][::-1].split('.')[0]+"'"
+            print(os.popen(cmd=cmd).read())
+
+            bg_path = " -bg '"+input.parent.parent.joinpath('imgs').joinpath("contagem_material_completo.png").__str__()+"'"
+            cmd = "python3 graficoFixacao.py '"+input.__str__()+"' -o '"+output.parent.joinpath(output.stem.__str__().replace('_e_soma','')+'.html').__str__()+"'"+bg_path+" -tbg '"+i.__str__()[::-1].split('_',1)[0][::-1].split('.')[0]+"'"
+            print(os.popen(cmd=cmd).read())
+        else:
+            cmd = "python3 graficoFixacao.py '"+input.__str__()+"' -o '"+output.__str__()+"'"+bg_path+" -tbg '"+i.__str__()[::-1].split('_',1)[0][::-1].split('.')[0]+"'"
+            print(os.popen(cmd=cmd).read())
         #os.popen(cmd=cmd).read()
         bar.update(1)
         #break
 
-separateByTarget()
-execFixacao()
+def execInputHeatMap():
+    os.chdir(ROOT_APPS)
+    csv_finders = Path(PATH_TARGET_HEAT_INPUT).rglob("*.csv")
+    csv_finders = list(csv_finders)
+    bar = tqdm(total=len(csv_finders),desc="run_task={}".format("Gerando csv's para HeatMap"))
+    for i in csv_finders:
+        input = i.absolute()
+        output = Path.joinpath(i.parent.parent.absolute(),INPUT_CSVTOCSVHEAT,i.stem+'.csv')
+
+        cmd = "python3 toCsv.py '"+input.__str__()+"' -o '"+output.__str__()+"' -hm True"
+        #print(cmd)
+        #print("toCsv.py"+output.__str__()+'\n')
+        os.popen(cmd=cmd).read()
+        bar.update(1)
+    ...
+
+def execHeatMap():
+    os.chdir(ROOT_APPS)
+    csv_finders = Path(PATH_RAW_REAL_EYE).parent.joinpath(INPUT_CSVTOCSVHEAT).rglob("*.csv")
+    csv_finders = list(csv_finders)
+    bar = tqdm(total=len(csv_finders),desc="run_task={}".format("Gerando graficos de HeatMap"))
+    for i in csv_finders:
+        input = i.absolute()
+        output = Path.joinpath(i.parent.parent.absolute(),'heat_graph',i.stem+'.png')
+        bg_path = ''
+        try:
+            bg_path = " -b '"+input.parent.parent.joinpath('imgs').joinpath(input.stem[::-1].split('_',1)[1][::-1]+".png").__str__()+"'"
+        except IndexError:
+            print('-----\nImagem não encontrada em:',input,'\n------')
+        if(input.stem.__str__().find('contagem_e_soma_material_completo') != -1):
+            bg_path = " -b '"+input.parent.parent.joinpath('imgs').joinpath("soma_material_completo.png").__str__()+"'"
+            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' 1920 1080 -a 0.6 -o '"+output.parent.joinpath(output.stem.__str__().replace('contagem_e_','')+'.png').__str__()+"'"+bg_path
+            print(os.popen(cmd=cmd).read())
+
+            bg_path = " -b '"+input.parent.parent.joinpath('imgs').joinpath("contagem_material_completo.png").__str__()+"'"
+            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' 1920 1080 -a 0.6 -o '"+output.parent.joinpath(output.stem.__str__().replace('_e_soma','')+'.png').__str__()+"'"+bg_path
+            print(os.popen(cmd=cmd).read())
+        else:
+            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' 1920 1080 -a 0.6 -o '"+output.__str__()+"'"+bg_path
+            print(os.popen(cmd=cmd).read())
+        bar.update(1)
+    ...
+
+#separateByTarget()
+#execFixacao()
 execFGraph()
+#execInputHeatMap()
+execHeatMap()
