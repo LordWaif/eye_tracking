@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from makeTreeDir import cdCreate,OUTPUT_TXTTOCSV,OUTPUT_CSVTOFCSV,OUTPUT_FCSVTOFGRAPH
 import numpy as np
-from config import COLUMNS_TO_BE_PROCESS,ROOT_APPS,OUTLIER
+from config import COLUMNS_TO_BE_PROCESS,ROOT_APPS,OUTLIER,SCREEN_W,SCREEN_H
 #from math import isnan
 
 GROUPS = dict()
@@ -89,6 +89,7 @@ def execFGraph():
     csv_finders = PATH_TARGET_GROUP.rglob("*.csv")
     csv_finders = list(csv_finders)
     bar = tqdm(total=len(csv_finders),desc="run_task={}".format('gerando graficos'))
+    c=0
     for i in csv_finders:
         input = i.absolute()
         output = Path.joinpath(i.parent.parent.absolute(),OUTPUT_FCSVTOFGRAPH,i.stem+'.html')
@@ -110,6 +111,44 @@ def execFGraph():
             print(os.popen(cmd=cmd).read())
         #os.popen(cmd=cmd).read()
         bar.update(1)
+        c+=1
+        if(c>=10):
+            break
+        
+
+def execPGraph():
+    os.chdir(ROOT_APPS)
+    #teste = Path('GazePointHeatMap/Example Output/data.csv')
+    csv_finders = PATH_TARGET_HEAT_INPUT.rglob("*.csv")
+    csv_finders = list(csv_finders)
+    #csv_finders = list([teste])
+    c=0
+    bar = tqdm(total=len(csv_finders),desc="run_task={}".format('gerando graficos'))
+    for i in csv_finders:
+        input = i.absolute()
+        #output = Path('GazePointHeatMap/Example Output/teste.html')
+        output = Path.joinpath(i.parent.parent.absolute(),'point_graph',i.stem+'.html')
+        bg_path = ''
+        try:
+            bg_path = " -bg '"+input.parent.parent.joinpath('imgs').joinpath(input.stem[::-1].split('_',1)[1][::-1]+".png").__str__()+"'"
+        except IndexError:
+            print('-----\nImagem não encontrada em:',input,'\n------')
+        if(input.stem.__str__().find('contagem_e_soma_material_completo') != -1):
+            bg_path = " -bg '"+input.parent.parent.joinpath('imgs').joinpath("soma_material_completo.png").__str__()+"'"
+            cmd = "python3 graficoPontos.py '"+input.__str__()+"' -o '"+output.parent.joinpath(output.stem.__str__().replace('contagem_e_','')+'.html').__str__()+"'"+bg_path+" -tbg '"+i.__str__()[::-1].split('_',1)[0][::-1].split('.')[0]+"'"
+            print(os.popen(cmd=cmd).read())
+
+            bg_path = " -bg '"+input.parent.parent.joinpath('imgs').joinpath("contagem_material_completo.png").__str__()+"'"
+            cmd = "python3 graficoPontos.py '"+input.__str__()+"' -o '"+output.parent.joinpath(output.stem.__str__().replace('_e_soma','')+'.html').__str__()+"'"+bg_path+" -tbg '"+i.__str__()[::-1].split('_',1)[0][::-1].split('.')[0]+"'"
+            print(os.popen(cmd=cmd).read())
+        else:
+            cmd = "python3 graficoPontos.py '"+input.__str__()+"' -o '"+output.__str__()+"'"+bg_path+" -tbg '"+i.__str__()[::-1].split('_',1)[0][::-1].split('.')[0]+"'"
+            print(os.popen(cmd=cmd).read())
+        #os.popen(cmd=cmd).read()
+        bar.update(1)
+        c+=1
+        if(c>=10):
+            break
         #break
 
 def execInputHeatMap():
@@ -133,6 +172,7 @@ def execHeatMap():
     csv_finders = Path(PATH_RAW_REAL_EYE).parent.joinpath(INPUT_CSVTOCSVHEAT).rglob("*.csv")
     csv_finders = list(csv_finders)
     bar = tqdm(total=len(csv_finders),desc="run_task={}".format("Gerando graficos de HeatMap"))
+    c=0
     for i in csv_finders:
         input = i.absolute()
         output = Path.joinpath(i.parent.parent.absolute(),'heat_graph',i.stem+'.png')
@@ -143,20 +183,26 @@ def execHeatMap():
             print('-----\nImagem não encontrada em:',input,'\n------')
         if(input.stem.__str__().find('contagem_e_soma_material_completo') != -1):
             bg_path = " -b '"+input.parent.parent.joinpath('imgs').joinpath("soma_material_completo.png").__str__()+"'"
-            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' 1920 1080 -a 0.6 -o '"+output.parent.joinpath(output.stem.__str__().replace('contagem_e_','')+'.png').__str__()+"'"+bg_path
+            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' "+str(SCREEN_W)+" "+str(SCREEN_H)+" -a 0.6 -o '"+output.parent.joinpath(output.stem.__str__().replace('contagem_e_','')+'.png').__str__()+"'"+bg_path
             print(os.popen(cmd=cmd).read())
 
             bg_path = " -b '"+input.parent.parent.joinpath('imgs').joinpath("contagem_material_completo.png").__str__()+"'"
-            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' 1920 1080 -a 0.6 -o '"+output.parent.joinpath(output.stem.__str__().replace('_e_soma','')+'.png').__str__()+"'"+bg_path
+            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' "+str(SCREEN_W)+" "+str(SCREEN_H)+" -a 0.6 -o '"+output.parent.joinpath(output.stem.__str__().replace('_e_soma','')+'.png').__str__()+"'"+bg_path
             print(os.popen(cmd=cmd).read())
         else:
-            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' 1920 1080 -a 0.6 -o '"+output.__str__()+"'"+bg_path
+            cmd = "python3 gazeheatplot.py '"+input.__str__()+"' "+str(SCREEN_W)+" "+str(SCREEN_H)+" -a 0.6 -o '"+output.__str__()+"'"+bg_path
             print(os.popen(cmd=cmd).read())
         bar.update(1)
+        c+=1
+        if(c>=10):
+            break
+        
     ...
 
 #separateByTarget()
 #execFixacao()
 execFGraph()
+#Tá alterado o de baixo
+execPGraph()
 #execInputHeatMap()
 execHeatMap()

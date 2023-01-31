@@ -30,18 +30,12 @@ class GraficoFixacao():
 
     def makeGraph(self,path=OUTPUT_NAME):
         image = Image.open(self.image_bg)
-        tam_maximo = max(self.region_counter['MS'])
         plot = px.Figure(
                     data=[px.Scatter(
-                        x=self.region_counter['X'],
-                        y=self.region_counter['Y'],
-                        mode='markers',
-                        marker=dict(
-                            size=self.region_counter['MS'].astype('float32'),
-                            sizemode='area', 
-                            sizeref=2.*tam_maximo/(50.**2), 
-                            sizemin=4,
-                        ),
+                        x=self.region_counter['X_TELA'],
+                        y=self.region_counter['Y_TELA'],
+                        marker=dict(color="crimson", size=12),
+                        mode="markers",
                     )],
                     layout=px.Layout(
                                     images=[
@@ -58,7 +52,7 @@ class GraficoFixacao():
                                         opacity=0.5,
                                         layer="below")
                                     ]
-                                ),
+                                )
                 )
         plot.update_xaxes(showgrid=False,range=[0,SCREEN_W])
         plot.update_yaxes(showgrid=False,range=[SCREEN_H,0])
