@@ -89,7 +89,7 @@ def execFGraph():
     csv_finders = PATH_TARGET_GROUP.rglob("*.csv")
     csv_finders = list(csv_finders)
     bar = tqdm(total=len(csv_finders),desc="run_task={}".format('gerando graficos'))
-    c=0
+    #c=0
     for i in csv_finders:
         input = i.absolute()
         output = Path.joinpath(i.parent.parent.absolute(),OUTPUT_FCSVTOFGRAPH,i.stem+'.html')
@@ -111,9 +111,9 @@ def execFGraph():
             print(os.popen(cmd=cmd).read())
         #os.popen(cmd=cmd).read()
         bar.update(1)
-        c+=1
+        '''c+=1
         if(c>=10):
-            break
+            break'''
         
 
 def execPGraph():
@@ -122,7 +122,7 @@ def execPGraph():
     csv_finders = PATH_TARGET_HEAT_INPUT.rglob("*.csv")
     csv_finders = list(csv_finders)
     #csv_finders = list([teste])
-    c=0
+    #c=0
     bar = tqdm(total=len(csv_finders),desc="run_task={}".format('gerando graficos'))
     for i in csv_finders:
         input = i.absolute()
@@ -146,9 +146,9 @@ def execPGraph():
             print(os.popen(cmd=cmd).read())
         #os.popen(cmd=cmd).read()
         bar.update(1)
-        c+=1
+        '''c+=1
         if(c>=10):
-            break
+            break'''
         #break
 
 def execInputHeatMap():
@@ -172,7 +172,7 @@ def execHeatMap():
     csv_finders = Path(PATH_RAW_REAL_EYE).parent.joinpath(INPUT_CSVTOCSVHEAT).rglob("*.csv")
     csv_finders = list(csv_finders)
     bar = tqdm(total=len(csv_finders),desc="run_task={}".format("Gerando graficos de HeatMap"))
-    c=0
+    #c=0
     for i in csv_finders:
         input = i.absolute()
         output = Path.joinpath(i.parent.parent.absolute(),'heat_graph',i.stem+'.png')
@@ -193,16 +193,15 @@ def execHeatMap():
             cmd = "python3 gazeheatplot.py '"+input.__str__()+"' "+str(SCREEN_W)+" "+str(SCREEN_H)+" -a 0.6 -o '"+output.__str__()+"'"+bg_path
             print(os.popen(cmd=cmd).read())
         bar.update(1)
-        c+=1
+        '''c+=1
         if(c>=10):
-            break
+            break'''
         
     ...
 
 #separateByTarget()
 #execFixacao()
 execFGraph()
-#Tá alterado o de baixo
 execPGraph()
 #execInputHeatMap()
 execHeatMap()
