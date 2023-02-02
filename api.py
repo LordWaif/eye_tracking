@@ -159,7 +159,7 @@ def execHeatMap():
             output = Path.joinpath(output.parent,output.stem+output.parts[-4]+output.suffix)
             #titulo = output.parts[-4]+' Questão '+BG_MAP[input.parts[-3]][int(match.groups()[0])]
             titulo = output.parts[-4]+' ,'+re.sub('V[ií]deo \d\. ','',output.stem).replace('_atv_0_','')
-        os.popen("python3 gazeheatplot.py '"+str(input)+"' 1920 1080 -a 0.6 -o '"+str(output)+"'"+bg_command).read()
+        os.popen("python3 gazeheatplot.py '"+str(input)+"' "+str(SCREEN_W)+" "+str(SCREEN_H)+" -a 0.6 -o '"+str(output)+"'"+bg_command).read()
         bar.update(1)
     ...
 from config import DEFAULT_ENCODING,DEFAULT_SEP_DF,REGIONS,SCREEN_H,SCREEN_W
@@ -256,12 +256,12 @@ def main():
     #fload()
     #execToCsv()
     #execFixacao()
-    #execFGraph()
+    execFGraph()
     #execInputHeatMap()
     #createvEnviroment()
-    #execHeatMap()
+    execHeatMap()
     #compactAll()
-    #countRegionsL()
+    countRegionsL()
     sacade()
     ...
 
