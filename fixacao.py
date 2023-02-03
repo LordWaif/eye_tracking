@@ -4,6 +4,7 @@ from config import *
 import numpy as np
 from datetime import datetime as dt
 import argparse,os
+from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Parametro para execução")
 
@@ -11,12 +12,14 @@ parser = argparse.ArgumentParser(description="Parametro para execução")
 parser.add_argument('input-path', type=str, help='caminho para o arquivo csv')
 
 #opcional
+parser.add_argument('-vr','--vertical-regions',default=1,type=int,required=False,help='numero de segmentos em que a tela vai ser divida verticalmente')
 parser.add_argument('-o','--output-name', default='region_output.csv', type=str, required=False, help='nome do arquivo de saida')
 parser.add_argument('-m','--many', type=bool, default=False,required=False, help='processamento de varios csv"s')
 
 args = vars(parser.parse_args())
 
 PATH_IN = args['input-path']
+REGIONS_V = args['vertical_regions']
 OUTPUT_NAME = args['output_name']
 
 def setAxis(x,y,range_x,range_y):
@@ -93,7 +96,21 @@ class Fixacao():
                     path_out,
                     sep_dataframe=DEFAULT_SEP_DF,
                     encoding=DEFAULT_ENCODING):
-        dataframe.to_csv(path_out,sep=sep_dataframe,encoding=encoding,index=False)
+        dataframe.to_csv(out,sep=sep_dataframe,encoding=encoding,index=False)
+        for n,i in enumerate(self.segmentRegions(dataframe)):
+            out = Path(path_out).parent.joinpath(Path(path_out).stem.__str__()+'regiao_'+str(n)+'_.csv').__str__()
+            i.to_csv(out,sep=sep_dataframe,encoding=encoding,index=False)
+
+    def segmentRegions(self,dataframe):
+        dataframes = []
+        inicio = 0
+        parcela = int(SCREEN_W/REGIONS_V)
+        final = parcela
+        while(final<=SCREEN_W):
+            dataframes.append(dataframe[(dataframe['X']>=inicio) & (dataframe['X']<final)])
+            inicio = final
+            final = final + parcela
+        return dataframes
 
     def group(self,colum_tobe_grouped='REGIAO_'+COLUMNS_TO_BE_PROCESS['N']):
         return self.dataframe[self.dataframe[colum_tobe_grouped] != -1].groupby(colum_tobe_grouped)

@@ -52,16 +52,16 @@ class GraficoFixacao():
                                         yref="y",
                                         x=0,
                                         y=3,
-                                        sizex=1280,
-                                        sizey=720,
+                                        sizex=SCREEN_W,
+                                        sizey=SCREEN_H,
                                         sizing="stretch",
                                         opacity=0.5,
                                         layer="below")
                                     ]
                                 )
                 )
-        plot.update_xaxes(showgrid=False,range=[0,1280])
-        plot.update_yaxes(showgrid=False,range=[720,0])
+        plot.update_xaxes(showgrid=False,range=[0,SCREEN_W])
+        plot.update_yaxes(showgrid=False,range=[SCREEN_H,0])
         #titulo+' Nome: '+df['NOME'][0]+' N Fixacoes: '+str(len(ldf))
         plot.update_layout(title=BG_TITLE)
 
@@ -69,5 +69,6 @@ class GraficoFixacao():
         #plot.update_yaxes(autorange="reversed")
         #os.path.join(os.path.dirname(PATH),os.path.splitext(PATH)[0].split('/')[-1]+titulo+'_'+df['NOME'][0]+'_'+str(i)+'_.html')
         plot.write_html(path)
+        plot.write_image(path[::-1].split('.',1)[1][::-1]+'.png',width=SCREEN_W, height=SCREEN_H)
 
 GraficoFixacao(PATH_IN,image_bg=BG_IMG).makeGraph(path=OUTPUT_NAME)

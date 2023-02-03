@@ -2,7 +2,7 @@ from ast import In
 import os
 from sys import stdout
 from tqdm import tqdm
-from config import GRAPH_TITLE_DEFAULT, IMAGE_NAME_PREFFIX, IMAGE_NAME_SUFFIX, IMAGE_PATH, PATH_N_FIX_TABLE, ROOT_APPS, TEMPORAY_COMPACT_FOLDER, VIRTUAL_ENVIROMENT
+from config import *
 from makeTreeDir import INPUT_CSVTOCSVHEAT,OUTPUT_CSVTOFCSV, OUTPUT_CSVTOHMGRAPH,OUTPUT_TXTTOCSV,OUTPUT_FCSVTOFGRAPH,BG_MAP,OUTPUT_NFIXTABLE,INPUT_CSVTOCSVHEAT,OUTPUT_SACADE,main_dir, cdCreate,createTree,clearFolder
 from pathlib import Path
 import re
@@ -38,10 +38,10 @@ def execFixacao():
         input = Path.joinpath(i.parent.parent.absolute(),OUTPUT_TXTTOCSV,i.stem+'.csv')
         output = Path.joinpath(i.parent.parent.absolute(),OUTPUT_CSVTOFCSV,i.stem+'.csv')
 
-        cmd = "python3 fixacao.py '"+input.__str__()+"' -o '"+output.__str__()+"'"
+        cmd = "python3 fixacao.py -vr "+str(REGIONS_LEO)+" '"+input.__str__()+"' -o '"+output.__str__()+"'"
         #print(input)
         #print("fixacao.py"+output2.__str__()+'\n')
-        os.popen(cmd=cmd).read()
+        print(os.popen(cmd=cmd).read())
         bar.update(1)
     ...
 
@@ -256,13 +256,13 @@ def main():
     #fload()
     #execToCsv()
     #execFixacao()
-    execFGraph()
-    #execInputHeatMap()
+    #execFGraph()
+    execInputHeatMap()
     #createvEnviroment()
     execHeatMap()
     #compactAll()
-    countRegionsL()
-    sacade()
+    #countRegionsL()
+    #sacade()
     ...
 
 if __name__ == '__main__':

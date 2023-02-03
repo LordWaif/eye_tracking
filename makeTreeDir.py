@@ -9,6 +9,7 @@ INPUT_CSVTOCSVHEAT = 'csv_heat'
 OUTPUT_CSVTOHMGRAPH = 'heat_map_graph'
 OUTPUT_NFIXTABLE = 'n_fix_table'
 OUTPUT_SACADE = 'sacadas'
+ACUMULADA = 'acumulada_graph'
 DEFAULT_DIRECTORIES = ['input_txt',
     OUTPUT_TXTTOCSV,
     OUTPUT_CSVTOFCSV,
@@ -16,7 +17,8 @@ DEFAULT_DIRECTORIES = ['input_txt',
     OUTPUT_CSVTOHMGRAPH,
     INPUT_CSVTOCSVHEAT,
     OUTPUT_NFIXTABLE,
-    OUTPUT_SACADE]
+    OUTPUT_SACADE,
+    ACUMULADA]
 
 
 common_prefix = 'saeb'
@@ -70,6 +72,9 @@ def clearFolder(path):
     folders = glob.glob(path)
     for folder in folders:
         for file in os.listdir(folder):
+            if file[::-1].split('.')[0][::-1] == 'txt':
+                continue
             os.remove(os.path.join(folder,file))
-#clearFolder("/home/lordwaif/documents/eye_leoTree/Coleta/*/dados/*/*")
+            ...
+#clearFolder("/home/lordwaif/documents/eye_leoTree/Coleta/*/dados/*/")
 #createTree()
