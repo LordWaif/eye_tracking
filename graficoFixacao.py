@@ -68,7 +68,7 @@ class GraficoFixacao():
         plot.update_layout(template="plotly_white")
         #plot.update_yaxes(autorange="reversed")
         #os.path.join(os.path.dirname(PATH),os.path.splitext(PATH)[0].split('/')[-1]+titulo+'_'+df['NOME'][0]+'_'+str(i)+'_.html')
-        plot.write_html(path)
+        #plot.write_html(path)
         plot.write_image(path[::-1].split('.',1)[1][::-1]+'.png',width=SCREEN_W, height=SCREEN_H)
 
 GraficoFixacao(PATH_IN,image_bg=BG_IMG).makeGraph(path=OUTPUT_NAME)

@@ -10,6 +10,7 @@ OUTPUT_CSVTOHMGRAPH = 'heat_map_graph'
 OUTPUT_NFIXTABLE = 'n_fix_table'
 OUTPUT_SACADE = 'sacadas'
 ACUMULADA = 'acumulada_graph'
+ACUMULADA_DOTS = 'acumulada_graph_dots'
 DEFAULT_DIRECTORIES = ['input_txt',
     OUTPUT_TXTTOCSV,
     OUTPUT_CSVTOFCSV,
@@ -18,7 +19,8 @@ DEFAULT_DIRECTORIES = ['input_txt',
     INPUT_CSVTOCSVHEAT,
     OUTPUT_NFIXTABLE,
     OUTPUT_SACADE,
-    ACUMULADA]
+    ACUMULADA,
+    ACUMULADA_DOTS]
 
 
 common_prefix = 'saeb'
@@ -76,5 +78,5 @@ def clearFolder(path):
                 continue
             os.remove(os.path.join(folder,file))
             ...
-#clearFolder("/home/lordwaif/documents/eye_leoTree/Coleta/*/dados/*/")
+#clearFolder("/home/lordwaif/documents/eye_leoTree/Coleta/*/dados/acumulada_graph_dots/")
 #createTree()

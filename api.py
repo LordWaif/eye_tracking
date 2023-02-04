@@ -4,10 +4,11 @@ from sys import stdout
 from tqdm import tqdm
 from config import *
 from makeTreeDir import INPUT_CSVTOCSVHEAT,OUTPUT_CSVTOFCSV, OUTPUT_CSVTOHMGRAPH,OUTPUT_TXTTOCSV,OUTPUT_FCSVTOFGRAPH,BG_MAP,OUTPUT_NFIXTABLE,INPUT_CSVTOCSVHEAT,OUTPUT_SACADE,main_dir, cdCreate,createTree,clearFolder
+from makeTreeDir import ACUMULADA,ACUMULADA_DOTS
 from pathlib import Path
 import re
 
-SEARCH_DATA_PATH = '/home/lordwaif/documents/eye_leoTree'
+SEARCH_DATA_PATH = '/home/lordwaif/documents/eye_leoTree/Coleta/'
 #REGEXP_MAP_WITH_BG = '.*atv_(\d)_.*'
 REGEXP_MAP_WITH_BG = 'V[ií]deo (\d)\.'
 
@@ -29,7 +30,8 @@ def execToCsv():
 
 def execFixacao():
     os.chdir(ROOT_APPS)
-    csv_finders = Path(SEARCH_DATA_PATH).joinpath(main_dir).rglob("*.csv")
+    csv_finders = Path(SEARCH_DATA_PATH).rglob("*.csv")
+    #print(list(csv_finders))
     def fill(elem):
         return not(elem.parts[-2]==OUTPUT_CSVTOFCSV)
     csv_finders = list(filter(fill,csv_finders))
@@ -79,12 +81,13 @@ def compactAll(directory = TEMPORAY_COMPACT_FOLDER):
     def concat(x, y):
         return x.__str__() + ' ' + y.__str__()
     '''
-    graph_finders = list(Path(SEARCH_DATA_PATH).rglob("*.html"))
+    #graph_finders = list(Path(SEARCH_DATA_PATH).rglob("*.html"))
     graph_heat_finders = list(Path(SEARCH_DATA_PATH).rglob("*.png"))
     def fill(elem):
-        return elem.parts[-2]==OUTPUT_CSVTOHMGRAPH
+        return elem.parts[-2]==ACUMULADA or elem.parts[-2] == ACUMULADA_DOTS
     graph_heat_finders = list(filter(fill,graph_heat_finders))
-    graphs = [graph_finders,graph_heat_finders]
+    #graphs = [graph_finders,graph_heat_finders]
+    graphs = [graph_heat_finders]
     titulo_arquivo = {0:'Fixacoes',1:'HeatMap'}
     #graph_finders = reduce(concat,graph_finders)
     #cmd = 'tar -zcf teste.tar.gz '+graph_finders
@@ -251,16 +254,56 @@ def sacade():
         f.writelines(r)
     ...
 
+def execLineGraph():
+    os.chdir(ROOT_APPS)
+    csv_finders = Path(SEARCH_DATA_PATH).rglob("*.csv")
+    def fill(elem):
+        return elem.parts[-2]==OUTPUT_CSVTOFCSV
+    csv_finders = list(filter(fill,csv_finders))
+    bar = tqdm(total=len(csv_finders),desc="run_task={}".format('gerando graficos'))
+    for i in csv_finders:
+        input = i.absolute()
+        output = Path.joinpath(i.parent.parent.absolute(),ACUMULADA,i.stem+'.html')
+        titulo = GRAPH_TITLE_DEFAULT
+        #titulo = output.parts[-4]+' Questão '+BG_MAP[input.parts[-3]][int(match.groups()[0])]
+        titulo = output.parts[-4]+' ,'+re.sub('V[ií]deo \d\. ','',output.stem).replace('_atv_0_','')
+        cmd = "python3 graficoLinha.py '"+input.__str__()+"' -o '"+output.__str__()+"' -tbg '"+titulo+"'"
+        #print(cmd)
+        os.popen(cmd=cmd).read()
+        bar.update(1)
+    ...
+
+def execDotsGraph():
+    os.chdir(ROOT_APPS)
+    csv_finders = Path(SEARCH_DATA_PATH).rglob("*.csv")
+    def fill(elem):
+        return elem.parts[-2]==OUTPUT_CSVTOFCSV
+    csv_finders = list(filter(fill,csv_finders))
+    bar = tqdm(total=len(csv_finders),desc="run_task={}".format('gerando graficos'))
+    for i in csv_finders:
+        input = i.absolute()
+        output = Path.joinpath(i.parent.parent.absolute(),ACUMULADA_DOTS,i.stem+'.html')
+        titulo = GRAPH_TITLE_DEFAULT
+        #titulo = output.parts[-4]+' Questão '+BG_MAP[input.parts[-3]][int(match.groups()[0])]
+        titulo = output.parts[-4]+' ,'+re.sub('V[ií]deo \d\. ','',output.stem).replace('_atv_0_','')
+        cmd = "python3 graficoLinha.py -dots true '"+input.__str__()+"' -o '"+output.__str__()+"' -tbg '"+titulo+"'"
+        #print(cmd)
+        os.popen(cmd=cmd).read()
+        bar.update(1)
+    ...
+
 def main():
     #createTree()
     #fload()
     #execToCsv()
     #execFixacao()
     #execFGraph()
-    execInputHeatMap()
+    #execLineGraph()
+    #execDotsGraph()
+    #execInputHeatMap()
     #createvEnviroment()
-    execHeatMap()
-    #compactAll()
+    #execHeatMap()
+    compactAll()
     #countRegionsL()
     #sacade()
     ...

@@ -96,7 +96,7 @@ class Fixacao():
                     path_out,
                     sep_dataframe=DEFAULT_SEP_DF,
                     encoding=DEFAULT_ENCODING):
-        dataframe.to_csv(out,sep=sep_dataframe,encoding=encoding,index=False)
+        dataframe.to_csv(path_out,sep=sep_dataframe,encoding=encoding,index=False)
         for n,i in enumerate(self.segmentRegions(dataframe)):
             out = Path(path_out).parent.joinpath(Path(path_out).stem.__str__()+'regiao_'+str(n)+'_.csv').__str__()
             i.to_csv(out,sep=sep_dataframe,encoding=encoding,index=False)

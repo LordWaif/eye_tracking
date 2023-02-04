@@ -110,7 +110,7 @@ def txt2csv(path_in=PATH_IN,
             df.columns = COLUMNS_NAMES_DATAFRAME
             df['DATE_TIME'] = pd.to_datetime(df['DATE_TIME'], format="%Y"+date_rpl+"%m"+date_rpl+"%d %H"+time_rpl+"%M"+time_rpl+"%S"+mill_rpl+"%f")
             output = Path(path_out)
-            df.to_csv(os.path.join(output.parent,output.stem+'_atv_'+str(atv)+'_'+output.suffix),sep=sep_dataframe,encoding=encoding,index=False)
+            df.to_csv(os.path.join(output.parent,output.stem+'_atv_'+str(atv)+'_'+output.parts[-4]+'_'+output.suffix),sep=sep_dataframe,encoding=encoding,index=False)
             atv += 1
 
 def adapterInputHeatMap(path_in=PATH_IN,
