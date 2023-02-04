@@ -71,5 +71,8 @@ def clearFolder(path):
     for folder in folders:
         for file in os.listdir(folder):
             os.remove(os.path.join(folder,file))
-#clearFolder("/home/lordwaif/documents/eye_leoTree/Coleta/*/dados/*/*")
+#clearFolder("/home/lordwaif/documents/usecade_andiara/alunos/")
+#clearFolder("/home/lordwaif/documents/usecade_andiara/csv_fixacion/")
+#clearFolder("/home/lordwaif/documents/usecade_andiara/alunos/")
+#clearFolder("/home/lordwaif/documents/usecade_andiara/alunos/")
 #createTree()

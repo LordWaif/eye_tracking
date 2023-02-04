@@ -31,7 +31,7 @@ def separateByTarget(columns_to_be_process=COLUMNS_TO_BE_PROCESS):
     for i in lista:
         data = pd.read_csv(i.__str__())
         #data = data[data['participant_tags'].fillna(0)]
-        data['participant_tags'] = data['participant_tags'].fillna('desconhecido')
+        data['participant_tags'] = [i if not(pd.isnull(i)) else 'desconhecido'+str(ind) for ind,i in enumerate(data['participant_tags'])]
         participantes = set(list(data['participant_id']))
         #print(data['participant_tags'])
         for j in participantes:
@@ -195,8 +195,20 @@ def execHeatMap():
         bar.update(1)
         '''c+=1
         if(c>=10):
-            break'''
-        
+            break'''  
+    ...
+
+def countFix():
+    os.chdir(ROOT_APPS)
+    csv_finders = Path(PATH_RAW_REAL_EYE).parent.joinpath(OUTPUT_CSVTOFCSV).rglob("*.csv")
+    csv_finders = list(csv_finders)
+    bar = tqdm(total=len(csv_finders),desc="run_task={}".format("Calculando n de fixações por região"))
+    for i in csv_finders:
+        input = i.absolute()
+        output = Path.joinpath(i.parent.parent.absolute(),i.stem+'.csv')
+        cmd = "python3 countFix.py '"+input.__str__()+"' -o '"+output.parent.joinpath(output.stem.__str__().replace('contagem_e_','')+'.xlsx').__str__()+"'"
+        print(os.popen(cmd=cmd).read())
+        bar.update(1)
     ...
 
 #separateByTarget()
@@ -205,3 +217,4 @@ execFGraph()
 execPGraph()
 #execInputHeatMap()
 execHeatMap()
+#countFix()
